@@ -4,3 +4,7 @@ version = "0.1.0"
 authors = ["Antoine Busch <abusch@atlassian.com>"]
 
 [dependencies]
+rust_docker = { path = "/home/abusch/code/rust/docker.rs" }
+failure = "0.1"
+termion = "*"
+tui = "0.2"
