@@ -1,5 +1,5 @@
 extern crate failure;
-extern crate rust_docker;
+extern crate shiplift;
 extern crate termion;
 extern crate tui;
 
@@ -11,12 +11,10 @@ use termion::input::TermRead;
 use tui::backend::MouseBackend;
 use tui::layout::{Direction, Group, Rect, Size};
 use tui::style::{Color, Modifier, Style};
-use tui::widgets::{Block, Borders, Row, Table, Widget};
+use tui::widgets::{Block, Borders, Item, List, Row, Table, Widget};
 use tui::Terminal;
 
-use rust_docker::api::containers::Containers;
-use rust_docker::api::version::Version;
-use rust_docker::DockerClient;
+use shiplift::Docker;
 
 struct App<'a> {
     size: Rect,
@@ -36,12 +34,14 @@ impl<'a> App<'a> {
 
 fn main() {
     println!("Connecting to docker daemon...");
-    let docker = DockerClient::new("unix:///var/run/docker.sock").unwrap();
+    let docker = Docker::new();
+    let containers = docker.containers();
     // let version = docker.get_version_info().unwrap();
     // println!("Docker daemon version {}", version);
     println!("Getting list of running containers...");
-    let containers = docker.list_running_containers(None).unwrap();
-    let data = containers
+    let containers_list = containers.list(&Default::default()).unwrap();
+    println!("done");
+    let data = containers_list
         .iter()
         .map(|c| vec![c.Id.as_ref(), c.Image.as_ref(), c.Command.as_ref()])
         .collect();
@@ -104,10 +104,11 @@ fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
         }
     });
     Group::default()
-        .direction(Direction::Horizontal)
-        .sizes(&[Size::Percent(100)])
+        .direction(Direction::Vertical)
+        .sizes(&[Size::Percent(50), Size::Percent(50)])
         .margin(0)
         .render(t, &app.size, |t, chunks| {
+            // Table
             Table::new(header.into_iter(), rows)
                 .block(
                     Block::default()
@@ -116,6 +117,11 @@ fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
                 )
                 .widths(&[15, 20, 50])
                 .render(t, &chunks[0]);
+
+            let data = vec![Item::Data("Foo"), Item::Data("Bar"), Item::Data("Doo")];
+            List::new(data.into_iter())
+                .block(Block::default().borders(Borders::ALL))
+                .render(t, &chunks[1]);
         });
 
     t.draw().unwrap();
