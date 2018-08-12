@@ -9,9 +9,8 @@ mod app;
 use std::io;
 use std::sync::mpsc;
 use std::thread;
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
-use humantime::Timestamp;
 use termion::event;
 use termion::input::TermRead;
 use tui::backend::{Backend, MouseBackend};
@@ -90,6 +89,10 @@ fn main() {
                     } else {
                         app.selected = app.containers.len() - 1;
                     },
+                    event::Key::Char('a') => {
+                        app.only_running = !app.only_running;
+                        app.refresh();
+                    }
                     _ => {}
                 };
             }
