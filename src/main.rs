@@ -1,4 +1,5 @@
 extern crate failure;
+extern crate humantime;
 extern crate shiplift;
 extern crate termion;
 extern crate tui;
@@ -8,11 +9,11 @@ mod app;
 use std::io;
 use std::sync::mpsc;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 
+use humantime::Timestamp;
 use termion::event;
 use termion::input::TermRead;
-
 use tui::backend::{Backend, MouseBackend};
 use tui::layout::{Direction, Group, Rect, Size};
 use tui::style::{Color, Modifier, Style};
@@ -172,8 +173,12 @@ fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rec
         .text(
             current_container
                 .map(|c| {
+                    let create_time = c.Created;
+                    let formatted_time = ::std::time::UNIX_EPOCH + Duration::from_secs(create_time);
+                    let duration = formatted_time.elapsed().unwrap();
+
                     format!(
-                        "{{mod=bold {:15}}} {}\n\
+                        "{{mod=bold {:15}}} {} ago\n\
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {}\n\
@@ -184,7 +189,7 @@ fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rec
                          {{mod=bold {:15}}} {:?}\n\
                          {{mod=bold {:15}}} {:?}",
                         "Created:",
-                        c.Created,
+                        humantime::format_duration(duration),
                         "Command:",
                         c.Command,
                         "Id:",
