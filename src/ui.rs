@@ -1,0 +1,157 @@
+use std::time::Duration;
+
+use humantime;
+
+use app::App;
+use tui::{
+    backend::{Backend, MouseBackend},
+    layout::{Direction, Group, Rect, Size},
+    style::{Color, Modifier, Style},
+    widgets::{Block, Borders, Paragraph, Row, Table, Tabs, Widget},
+    Terminal,
+};
+
+pub fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
+    Group::default()
+        .direction(Direction::Vertical)
+        .sizes(&[Size::Fixed(1), Size::Fixed(3), Size::Percent(100)])
+        .margin(0)
+        .render(t, &app.size, |t, chunks| {
+            // Status bar
+            draw_status_bar(app, t, &chunks[0]);
+
+            Tabs::default()
+                .block(Block::default().borders(Borders::ALL))
+                .titles(&app.tabs.titles)
+                .style(Style::default().fg(Color::White))
+                .highlight_style(Style::default().fg(Color::Yellow))
+                .select(app.tabs.selected)
+                .render(t, &chunks[1]);
+
+            if app.tabs.selected == 0 {
+                draw_container_tab(app, t, &chunks[2]);
+            } else {
+                draw_docker_tab(app, t, &chunks[2]);
+            }
+        });
+
+    t.draw().unwrap();
+}
+
+fn draw_status_bar<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    Paragraph::default()
+        .wrap(true)
+        .style(Style::default().bg(Color::Blue).fg(Color::White))
+        .text(&format!(
+            "{{mod=bold Rocker \\\\m/ v0.1}}   {} containers, {} images, docker v{} ({})",
+            app.info.Containers, app.info.Images, app.version.Version, app.version.ApiVersion,
+        ))
+        .render(t, rect);
+}
+
+fn draw_container_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    Group::default()
+        .direction(Direction::Vertical)
+        .sizes(&[Size::Percent(50), Size::Percent(50)])
+        .margin(0)
+        .render(t, rect, |t, chunks| {
+            // Containers
+            draw_container_list(app, t, &chunks[0]);
+
+            // Container details
+            draw_container_details(app, t, &chunks[1]);
+        });
+}
+
+fn draw_container_list<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
+    let normal_style = Style::default().fg(Color::White);
+    let running_style = Style::default().fg(Color::Green);
+    let header = ["Container ID", "Image", "Command", "Status"];
+    let rows: Vec<_> = app
+        .containers
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            let data: Vec<&str> = vec![
+                c.Id.as_ref(),
+                c.Image.as_ref(),
+                c.Command.as_ref(),
+                c.Status.as_ref(),
+            ];
+            if i == app.selected {
+                Row::StyledData(data.into_iter(), &selected_style)
+            } else {
+                if c.Status.starts_with("Up ") {
+                    Row::StyledData(data.into_iter(), &running_style)
+                } else {
+                    Row::StyledData(data.into_iter(), &normal_style)
+                }
+            }
+        })
+        .collect();
+
+    Table::new(header.into_iter(), rows.into_iter())
+        .block(Block::default().borders(Borders::ALL))
+        .widths(&[15, 20, 30, 20])
+        .render(t, rect);
+}
+
+fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    let current_container = app.get_selected_container();
+    Paragraph::default()
+        .block(Block::default().borders(Borders::ALL))
+        .wrap(true)
+        .text(
+            current_container
+                .map(|c| {
+                    let create_time = c.Created;
+                    let formatted_time = ::std::time::UNIX_EPOCH + Duration::from_secs(create_time);
+                    let duration = formatted_time.elapsed().unwrap();
+
+                    format!(
+                        "{{mod=bold {:15}}} {} ago\n\
+                         {{mod=bold {:15}}} {}\n\
+                         {{mod=bold {:15}}} {}\n\
+                         {{mod=bold {:15}}} {}\n\
+                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {}\n\
+                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {:?}",
+                        "Created:",
+                        humantime::format_duration(duration),
+                        "Command:",
+                        c.Command,
+                        "Id:",
+                        c.Id,
+                        "Image:",
+                        c.Image,
+                        "Labels:",
+                        c.Labels,
+                        "Names:",
+                        c.Names,
+                        "Ports:",
+                        c.Ports,
+                        "Status:",
+                        c.Status,
+                        "SizeRW:",
+                        c.SizeRw,
+                        "SizeRootFs:",
+                        c.SizeRootFs,
+                    )
+                })
+                .unwrap_or("".to_string())
+                .as_str(),
+        )
+        .render(t, rect);
+}
+
+fn draw_docker_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    Paragraph::default()
+        .text(&format!("{:#?}", app.info))
+        .wrap(true)
+        .raw(true)
+        .render(t, rect);
+}

@@ -1,20 +1,32 @@
-use shiplift::builder::ContainerListOptions;
-use shiplift::rep::{Container, Info, Version};
-use shiplift::Docker;
+use shiplift::{
+    rep::{Container, Info, Version},
+    ContainerListOptions, Docker,
+};
 use tui::layout::Rect;
 
+/// Contains the state of the application.
 pub struct App {
+    /// The client used to access the Docker daemon
     pub docker: Docker,
+    /// The current size of the application
     pub size: Rect,
+    /// Version info of the Docker daemon
     pub version: Version,
+    /// System info of the Docker daemon
     pub info: Info,
+    /// List of containers to display
     pub containers: Vec<Container>,
+    /// Index of the currently selected container from the above list
     pub selected: usize,
+    /// Whether to only display currently running containers
     pub only_running: bool,
+    /// List of tabs in the UI
     pub tabs: MyTabs,
 }
 
 impl App {
+    /// Create a new instance of `App`. It will initialize the Docker client and make a couple of
+    /// calls to the Docker daemon to get some system info and version info.
     pub fn new() -> App {
         let docker = Docker::new();
         let info = docker.info().unwrap();
@@ -31,6 +43,7 @@ impl App {
         }
     }
 
+    /// Refreshes the state of the application (i.e. list of containers, system information, etc).
     pub fn refresh(&mut self) {
         let options = if self.only_running {
             ContainerListOptions::builder().build()
@@ -46,6 +59,7 @@ impl App {
         }
     }
 
+    /// Returns the currently selected container, or `None` if there are no containers.
     pub fn get_selected_container(&self) -> Option<&Container> {
         self.containers.get(self.selected)
     }
