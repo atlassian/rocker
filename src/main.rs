@@ -16,7 +16,7 @@ use termion::input::TermRead;
 use tui::backend::{Backend, MouseBackend};
 use tui::layout::{Direction, Group, Rect, Size};
 use tui::style::{Color, Modifier, Style};
-use tui::widgets::{Block, Borders, Paragraph, Row, Table, Widget};
+use tui::widgets::{Block, Borders, Paragraph, Row, Table, Tabs, Widget};
 use tui::Terminal;
 
 use app::App;
@@ -89,6 +89,8 @@ fn main() {
                     } else {
                         app.selected = app.containers.len() - 1;
                     },
+                    event::Key::Left => app.tabs.previous(),
+                    event::Key::Right => app.tabs.next(),
                     event::Key::Char('a') => {
                         app.only_running = !app.only_running;
                         app.refresh();
@@ -107,17 +109,25 @@ fn main() {
 fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
     Group::default()
         .direction(Direction::Vertical)
-        .sizes(&[Size::Fixed(1), Size::Percent(50), Size::Percent(50)])
+        .sizes(&[Size::Fixed(1), Size::Fixed(3), Size::Percent(100)])
         .margin(0)
         .render(t, &app.size, |t, chunks| {
             // Status bar
             draw_status_bar(app, t, &chunks[0]);
 
-            // Containers
-            draw_container_list(app, t, &chunks[1]);
+            Tabs::default()
+                .block(Block::default().borders(Borders::ALL))
+                .titles(&app.tabs.titles)
+                .style(Style::default().fg(Color::White))
+                .highlight_style(Style::default().fg(Color::Yellow))
+                .select(app.tabs.selected)
+                .render(t, &chunks[1]);
 
-            // Container details
-            draw_container_details(app, t, &chunks[2]);
+            if app.tabs.selected == 0 {
+                draw_container_tab(app, t, &chunks[2]);
+            } else {
+                draw_docker_tab(app, t, &chunks[2]);
+            }
         });
 
     t.draw().unwrap();
@@ -132,6 +142,20 @@ fn draw_status_bar<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
             app.info.Containers, app.info.Images, app.version.Version, app.version.ApiVersion,
         ))
         .render(t, rect);
+}
+
+fn draw_container_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    Group::default()
+        .direction(Direction::Vertical)
+        .sizes(&[Size::Percent(50), Size::Percent(50)])
+        .margin(0)
+        .render(t, rect, |t, chunks| {
+            // Containers
+            draw_container_list(app, t, &chunks[0]);
+
+            // Container details
+            draw_container_details(app, t, &chunks[1]);
+        });
 }
 
 fn draw_container_list<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
@@ -163,7 +187,7 @@ fn draw_container_list<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
         .collect();
 
     Table::new(header.into_iter(), rows.into_iter())
-        .block(Block::default().borders(Borders::ALL).title(" Containers "))
+        .block(Block::default().borders(Borders::ALL))
         .widths(&[15, 20, 30, 20])
         .render(t, rect);
 }
@@ -216,5 +240,13 @@ fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rec
                 .unwrap_or("".to_string())
                 .as_str(),
         )
+        .render(t, rect);
+}
+
+fn draw_docker_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+    Paragraph::default()
+        .text(&format!("{:#?}", app.info))
+        .wrap(true)
+        .raw(true)
         .render(t, rect);
 }
