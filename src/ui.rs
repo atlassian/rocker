@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use humantime;
 
-use app::App;
+use app::{App, AppState};
 use tui::{
     backend::{Backend, MouseBackend},
     layout::{Direction, Group, Rect, Size},
@@ -28,11 +28,17 @@ pub fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
                 .select(app.tabs.selected)
                 .render(t, &chunks[1]);
 
-            if app.tabs.selected == 0 {
-                draw_container_tab(app, t, &chunks[2]);
-            } else {
-                draw_docker_tab(app, t, &chunks[2]);
+            match app.current_state {
+                AppState::ContainerList => draw_container_tab(app, t, &chunks[2]),
+                AppState::DaemonInfo => draw_docker_tab(app, t, &chunks[2]),
+                _ => unimplemented!(),
             }
+
+            // if app.tabs.selected == 0 {
+            //     draw_container_tab(app, t, &chunks[2]);
+            // } else {
+            //     draw_docker_tab(app, t, &chunks[2]);
+            // }
         });
 
     t.draw().unwrap();

@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use shiplift::{
     rep::{Container, Info, Version},
     ContainerListOptions, Docker,
@@ -22,6 +24,8 @@ pub struct App {
     pub only_running: bool,
     /// List of tabs in the UI
     pub tabs: MyTabs,
+    pub current_state: AppState,
+    pub previous_states: VecDeque<AppState>,
 }
 
 impl App {
@@ -40,6 +44,8 @@ impl App {
             selected: 0,
             only_running: true,
             tabs: MyTabs::new(),
+            current_state: AppState::ContainerList,
+            previous_states: VecDeque::new(),
         }
     }
 
@@ -63,6 +69,31 @@ impl App {
     pub fn get_selected_container(&self) -> Option<&Container> {
         self.containers.get(self.selected)
     }
+
+    pub fn new_view(&mut self, state: AppState) {
+        self.previous_states.push_front(self.current_state);
+        self.current_state = state;
+    }
+
+    pub fn previous_view(&mut self) -> bool {
+        if let Some(state) = self.previous_states.pop_front() {
+            self.current_state = state;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ContainerId(usize);
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum AppState {
+    ContainerList,
+    DaemonInfo,
+    ContainerLogs(ContainerId),
+    ContainerStats(ContainerId),
 }
 
 pub struct MyTabs {
