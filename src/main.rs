@@ -15,7 +15,7 @@ use std::time::Duration;
 use termion::{event, input::TermRead};
 use tui::{backend::MouseBackend, Terminal};
 
-use app::{App, AppState};
+use app::{App, AppState, ContainerId};
 use ui::draw;
 
 pub enum Event {
@@ -88,6 +88,10 @@ fn main() {
                     } else {
                         app.selected = app.containers.len() - 1;
                     },
+                    event::Key::Char('\n') => {
+                        let container = app.selected;
+                        app.new_view(AppState::ContainerDetails(ContainerId(container)));
+                    }
                     event::Key::Char('d') => app.new_view(AppState::DaemonInfo),
                     // event::Key::Left => app.tabs.previous(),
                     // event::Key::Right => app.tabs.next(),

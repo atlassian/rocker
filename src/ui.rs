@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use humantime;
 
-use app::{App, AppState};
+use app::{App, AppState, ContainerId};
 use tui::{
     backend::{Backend, MouseBackend},
     layout::{Direction, Group, Rect, Size},
@@ -30,6 +30,7 @@ pub fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
 
             match app.current_state {
                 AppState::ContainerList => draw_container_tab(app, t, &chunks[2]),
+                AppState::ContainerDetails(id) => draw_container_details(app, id, t, &chunks[2]),
                 AppState::DaemonInfo => draw_docker_tab(app, t, &chunks[2]),
                 _ => unimplemented!(),
             }
@@ -65,7 +66,7 @@ fn draw_container_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
             draw_container_list(app, t, &chunks[0]);
 
             // Container details
-            draw_container_details(app, t, &chunks[1]);
+            draw_container_info(app, t, &chunks[1]);
         });
 }
 
@@ -103,7 +104,7 @@ fn draw_container_list<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
         .render(t, rect);
 }
 
-fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
+fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
     let current_container = app.get_selected_container();
     Paragraph::default()
         .block(Block::default().borders(Borders::ALL))
@@ -157,6 +158,24 @@ fn draw_container_details<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rec
 fn draw_docker_tab<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) {
     Paragraph::default()
         .text(&format!("{:#?}", app.info))
+        .wrap(true)
+        .raw(true)
+        .render(t, rect);
+}
+
+fn draw_container_details<B: Backend>(
+    app: &App,
+    ContainerId(id): ContainerId,
+    t: &mut Terminal<B>,
+    rect: &Rect,
+) {
+    let container = &app.containers[id];
+    let containers_api = app.docker.containers();
+    let container_api = containers_api.get(container.Id.as_ref());
+    let container_details = container_api.inspect().unwrap();
+
+    Paragraph::default()
+        .text(&format!("{:#?}", container_details))
         .wrap(true)
         .raw(true)
         .render(t, rect);

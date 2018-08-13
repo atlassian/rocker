@@ -86,14 +86,15 @@ impl App {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct ContainerId(usize);
+pub struct ContainerId(pub usize);
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum AppState {
     ContainerList,
-    DaemonInfo,
+    ContainerDetails(ContainerId),
     ContainerLogs(ContainerId),
     ContainerStats(ContainerId),
+    DaemonInfo,
 }
 
 pub struct MyTabs {
