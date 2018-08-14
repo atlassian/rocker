@@ -22,8 +22,6 @@ pub struct App {
     pub selected: usize,
     /// Whether to only display currently running containers
     pub only_running: bool,
-    /// List of tabs in the UI
-    pub tabs: MyTabs,
     pub current_state: AppState,
     pub previous_states: VecDeque<AppState>,
 }
@@ -43,7 +41,6 @@ impl App {
             containers: Vec::new(),
             selected: 0,
             only_running: true,
-            tabs: MyTabs::new(),
             current_state: AppState::ContainerList,
             previous_states: VecDeque::new(),
         }
@@ -95,33 +92,4 @@ pub enum AppState {
     ContainerLogs(ContainerId),
     ContainerStats(ContainerId),
     DaemonInfo,
-}
-
-pub struct MyTabs {
-    pub titles: Vec<String>,
-    pub selected: usize,
-}
-
-impl MyTabs {
-    pub fn new() -> MyTabs {
-        MyTabs {
-            titles: vec!["Containers".into(), "Docker".into()],
-            selected: 0,
-        }
-    }
-
-    pub fn next(&mut self) {
-        self.selected += 1;
-        if self.selected >= self.titles.len() {
-            self.selected = 0;
-        }
-    }
-
-    pub fn previous(&mut self) {
-        if self.selected == 0 {
-            self.selected = self.titles.len() - 1;
-        } else {
-            self.selected -= 1;
-        }
-    }
 }

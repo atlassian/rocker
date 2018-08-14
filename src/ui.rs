@@ -7,39 +7,25 @@ use tui::{
     backend::{Backend, MouseBackend},
     layout::{Direction, Group, Rect, Size},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Paragraph, Row, Table, Tabs, Widget},
+    widgets::{Block, Borders, Paragraph, Row, Table, Widget},
     Terminal,
 };
 
 pub fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
     Group::default()
         .direction(Direction::Vertical)
-        .sizes(&[Size::Fixed(1), Size::Fixed(3), Size::Percent(100)])
+        .sizes(&[Size::Fixed(1), Size::Percent(100)])
         .margin(0)
         .render(t, &app.size, |t, chunks| {
             // Status bar
             draw_status_bar(app, t, &chunks[0]);
 
-            Tabs::default()
-                .block(Block::default().borders(Borders::ALL))
-                .titles(&app.tabs.titles)
-                .style(Style::default().fg(Color::White))
-                .highlight_style(Style::default().fg(Color::Yellow))
-                .select(app.tabs.selected)
-                .render(t, &chunks[1]);
-
             match app.current_state {
-                AppState::ContainerList => draw_container_tab(app, t, &chunks[2]),
-                AppState::ContainerDetails(id) => draw_container_details(app, id, t, &chunks[2]),
-                AppState::DaemonInfo => draw_docker_tab(app, t, &chunks[2]),
+                AppState::ContainerList => draw_container_tab(app, t, &chunks[1]),
+                AppState::ContainerDetails(id) => draw_container_details(app, id, t, &chunks[1]),
+                AppState::DaemonInfo => draw_docker_tab(app, t, &chunks[1]),
                 _ => unimplemented!(),
             }
-
-            // if app.tabs.selected == 0 {
-            //     draw_container_tab(app, t, &chunks[2]);
-            // } else {
-            //     draw_docker_tab(app, t, &chunks[2]);
-            // }
         });
 
     t.draw().unwrap();
