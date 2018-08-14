@@ -98,9 +98,10 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
         .text(
             current_container
                 .map(|c| {
-                    let create_time = c.Created;
-                    let formatted_time = ::std::time::UNIX_EPOCH + Duration::from_secs(create_time);
-                    let duration = formatted_time.elapsed().unwrap();
+                    let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
+                    let duration = created_time.elapsed().unwrap();
+                    // Truncate to second precision
+                    let duration = Duration::new(duration.as_secs(), 0);
 
                     format!(
                         "{{mod=bold {:15}}} {} ago\n\
@@ -108,7 +109,7 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {:?}\n\
-                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {:?}\n\
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {:?}\n\
@@ -124,7 +125,7 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
                         "Labels:",
                         c.Labels,
                         "Names:",
-                        c.Names,
+                        c.Names.join(", "),
                         "Ports:",
                         c.Ports,
                         "Status:",
