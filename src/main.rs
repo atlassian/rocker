@@ -5,6 +5,7 @@ extern crate termion;
 extern crate tui;
 
 mod app;
+mod views;
 // mod ui;
 
 use std::io;
@@ -48,6 +49,7 @@ fn main() {
             input_tx.send(Event::Input(key)).unwrap();
         }
     });
+
     // Ticking thread
     thread::spawn(move || loop {
         tick_tx.send(Event::Tick).unwrap();
