@@ -16,8 +16,8 @@ use tui::{
     Terminal,
 };
 
-use app::{AppCommand, ContainerId, ViewType};
-use views::View;
+use app::{AppCommand, ContainerId};
+use views::{View, ViewType};
 
 pub struct ContainerListView {
     /// List of containers to display

@@ -14,7 +14,7 @@ use tui::{
     Terminal,
 };
 
-use views::{ContainerInfo, ContainerListView, DockerInfo, View};
+use views::{ContainerInfo, ContainerListView, DockerInfo, View, ViewType};
 
 /// Contains the state of the application.
 pub struct App {
@@ -161,11 +161,4 @@ pub enum AppCommand {
     ExitView,
     SwitchToView(ViewType),
     NoOp,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ViewType {
-    ContainerList,
-    ContainerDetails(ContainerId),
-    DockerInfo,
 }

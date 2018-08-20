@@ -4,7 +4,7 @@ use shiplift::Docker;
 use termion::event::Key;
 use tui::{backend::MouseBackend, layout::Rect, Terminal};
 
-use app::AppCommand;
+use app::{AppCommand, ContainerId};
 
 mod container_details;
 mod container_list;
@@ -18,4 +18,11 @@ pub trait View {
     fn handle_input(&mut self, key: Key) -> Option<AppCommand>;
     fn refresh(&mut self, _docker: Arc<Docker>) {}
     fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect);
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ViewType {
+    ContainerList,
+    ContainerDetails(ContainerId),
+    DockerInfo,
 }
