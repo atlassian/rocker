@@ -12,15 +12,10 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use termion::{event, input::TermRead};
+use termion::input::TermRead;
 use tui::{backend::MouseBackend, Terminal};
 
-use app::App;
-
-pub enum Event {
-    Input(event::Key),
-    Tick,
-}
+use app::{App, AppEvent};
 
 fn main() {
     let (tx, rx) = mpsc::channel();
@@ -45,13 +40,13 @@ fn main() {
         let stdin = io::stdin();
         for c in stdin.keys() {
             let key = c.unwrap();
-            input_tx.send(Event::Input(key)).unwrap();
+            input_tx.send(AppEvent::Input(key)).unwrap();
         }
     });
 
     // Ticking thread
     thread::spawn(move || loop {
-        tick_tx.send(Event::Tick).unwrap();
+        tick_tx.send(AppEvent::Tick).unwrap();
         thread::sleep(Duration::from_secs(2));
     });
 
@@ -69,12 +64,12 @@ fn main() {
         // Handle events
         let evt = rx.recv().unwrap();
         match evt {
-            Event::Input(key) => {
+            AppEvent::Input(key) => {
                 if !app.handle_input(key) {
                     break;
                 }
             }
-            Event::Tick => app.refresh(),
+            AppEvent::Tick => app.refresh(),
         };
     }
 

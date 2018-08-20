@@ -16,6 +16,14 @@ use tui::{
 
 use views::{ContainerInfo, ContainerListView, DockerInfo, View, ViewType};
 
+/// The event type used in the main event loop of the application.
+pub enum AppEvent {
+    /// Represents a key press
+    Input(Key),
+    /// Represents a periodic tick, used to trigger refresh of the views
+    Tick,
+}
+
 /// Contains the state of the application.
 pub struct App {
     /// The client used to access the Docker daemon
@@ -56,38 +64,8 @@ impl App {
         self.current_view_mut().refresh(docker);
     }
 
-    pub fn new_view(&mut self, view_type: ViewType) {
-        let new_view = match view_type {
-            ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
-            ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
-            _ => unimplemented!(),
-        };
-
-        self.view_stack.push_front(new_view);
-    }
-
-    pub fn previous_view(&mut self) -> bool {
-        if let Some(_old_state) = self.view_stack.pop_front() {
-            !self.view_stack.is_empty()
-        } else {
-            panic!("View stack was empty!");
-        }
-    }
-
-    pub fn current_view(&self) -> &dyn View {
-        self.view_stack
-            .front()
-            .expect("View stack is empty!")
-            .as_ref()
-    }
-
-    pub fn current_view_mut(&mut self) -> &mut dyn View {
-        self.view_stack
-            .front_mut()
-            .expect("View stack is empty!")
-            .as_mut()
-    }
-
+    /// Handles the given key press. Returns `false` to signify to the main loop that the
+    /// application should exit.
     pub fn handle_input(&mut self, key: Key) -> bool {
         let command = self
             .handle_global_keys(key)
@@ -107,6 +85,7 @@ impl App {
         true
     }
 
+    /// Draws the application in the given terminal.
     pub fn draw(&self, t: &mut Terminal<MouseBackend>) {
         Group::default()
             .direction(Direction::Vertical)
@@ -122,6 +101,57 @@ impl App {
         t.draw().unwrap();
     }
 
+    /// Instantiate a view of the type `view_type` and pushes it onto the view stack.
+    fn new_view(&mut self, view_type: ViewType) {
+        let new_view = match view_type {
+            ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
+            ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
+            _ => unimplemented!(),
+        };
+
+        self.view_stack.push_front(new_view);
+    }
+
+    /// Pop the current view from the top of the stack. Returns `true` if there are still views in
+    /// the stack afterwards, `false` otherwise.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the view stack is empty.
+    fn previous_view(&mut self) -> bool {
+        if let Some(_old_state) = self.view_stack.pop_front() {
+            !self.view_stack.is_empty()
+        } else {
+            panic!("View stack was empty!");
+        }
+    }
+
+    /// Returns a reference to the currently displayed view (i.e. at the top of the stack).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the view stack is empty.
+    fn current_view(&self) -> &dyn View {
+        self.view_stack
+            .front()
+            .expect("View stack is empty!")
+            .as_ref()
+    }
+
+    /// Returns a mutable reference to the currently displayed view (i.e. at the top of the stack).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the view stack is empty.
+    fn current_view_mut(&mut self) -> &mut dyn View {
+        self.view_stack
+            .front_mut()
+            .expect("View stack is empty!")
+            .as_mut()
+    }
+
+    /// Handle global shortcuts. If not handled here, then the current view will get a chance to
+    /// handle it.
     fn handle_global_keys(&mut self, key: Key) -> Option<AppCommand> {
         match key {
             Key::Char('q') => Some(AppCommand::ExitView),
@@ -130,6 +160,7 @@ impl App {
         }
     }
 
+    /// Draws the status bar at the top
     fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: &Rect) {
         Paragraph::default()
             .wrap(true)
