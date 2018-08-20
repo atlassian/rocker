@@ -176,17 +176,3 @@ fn draw_container_details<B: Backend>(
         .raw(true)
         .render(t, rect);
 }
-
-fn display_port(port: &Port) -> String {
-    let mut s = String::new();
-    if let Some(ref ip) = port.IP {
-        s.push_str(&format!("{}:", ip));
-    }
-    s.push_str(&format!("{}", port.PrivatePort));
-    if let Some(ref public_port) = port.PublicPort {
-        s.push_str(&format!(" → {}", public_port));
-    }
-    s.push_str(&format!("/{}", port.Type));
-
-    s
-}

@@ -5,7 +5,7 @@ extern crate termion;
 extern crate tui;
 
 mod app;
-mod ui;
+// mod ui;
 
 use std::io;
 use std::sync::mpsc;
@@ -16,7 +16,6 @@ use termion::{event, input::TermRead};
 use tui::{backend::MouseBackend, Terminal};
 
 use app::App;
-use ui::draw;
 
 pub enum Event {
     Input(event::Key),
@@ -39,7 +38,7 @@ fn main() {
     terminal.clear().unwrap();
     terminal.hide_cursor().unwrap();
     app.size = terminal.size().unwrap();
-    draw(&mut terminal, &app);
+    app.draw(&mut terminal);
 
     // Input handling thread
     thread::spawn(move || {
@@ -65,7 +64,7 @@ fn main() {
         }
 
         // Draw app
-        draw(&mut terminal, &app);
+        app.draw(&mut terminal);
 
         // Handle events
         let evt = rx.recv().unwrap();
