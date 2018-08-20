@@ -16,6 +16,7 @@ use tui::{
     Terminal,
 };
 
+use app::AppCommand;
 use views::View;
 
 pub struct ContainerListView {
@@ -136,7 +137,7 @@ impl ContainerListView {
 }
 
 impl View for ContainerListView {
-    fn handle_input(&mut self, key: Key) -> Option<bool> {
+    fn handle_input(&mut self, key: Key) -> Option<AppCommand> {
         match key {
             Key::Down => {
                 if !self.containers.is_empty() {
@@ -145,7 +146,7 @@ impl View for ContainerListView {
                         self.selected = 0;
                     }
                 }
-                Some(true)
+                Some(AppCommand::NoOp)
             }
             Key::Up => {
                 if !self.containers.is_empty() {
@@ -155,12 +156,12 @@ impl View for ContainerListView {
                         self.selected = self.containers.len() - 1;
                     }
                 }
-                Some(true)
+                Some(AppCommand::NoOp)
             }
             Key::Char('a') => {
                 self.only_running = !self.only_running;
                 // self.refresh();
-                Some(true)
+                Some(AppCommand::NoOp)
             }
             _ => None,
         }

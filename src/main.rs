@@ -6,7 +6,6 @@ extern crate tui;
 
 mod app;
 mod views;
-// mod ui;
 
 use std::io;
 use std::sync::mpsc;
@@ -56,7 +55,6 @@ fn main() {
         thread::sleep(Duration::from_secs(2));
     });
 
-    app.refresh();
     loop {
         // handle resize
         let size = terminal.size().unwrap();

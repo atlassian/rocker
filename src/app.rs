@@ -14,7 +14,7 @@ use tui::{
     Terminal,
 };
 
-use views::{ContainerListView, View};
+use views::{ContainerListView, DockerInfo, View};
 
 /// Contains the state of the application.
 pub struct App {
@@ -61,9 +61,14 @@ impl App {
     //     self.containers.get(self.selected)
     // }
 
-    // pub fn new_view(&mut self, state: AppState) {
-    //     self.view_stack.push_front(state);
-    // }
+    pub fn new_view(&mut self, view_type: ViewType) {
+        let new_view = match view_type {
+            ViewType::DockerInfo => Box::new(DockerInfo::new()),
+            _ => unimplemented!(),
+        };
+
+        self.view_stack.push_front(new_view);
+    }
 
     pub fn previous_view(&mut self) -> bool {
         if let Some(_old_state) = self.view_stack.pop_front() {
@@ -88,9 +93,22 @@ impl App {
     }
 
     pub fn handle_input(&mut self, key: Key) -> bool {
-        self.handle_global_keys(key)
+        let command = self
+            .handle_global_keys(key)
             .or_else(|| self.current_view_mut().handle_input(key))
-            .unwrap_or(true)
+            .unwrap_or(AppCommand::NoOp);
+
+        match command {
+            AppCommand::SwitchToView(view_type) => {
+                self.new_view(view_type);
+            }
+            AppCommand::ExitView => {
+                return self.previous_view();
+            }
+            AppCommand::NoOp => { /* NoOp */ }
+        }
+
+        true
     }
 
     pub fn draw(&self, t: &mut Terminal<MouseBackend>) {
@@ -108,14 +126,14 @@ impl App {
         t.draw().unwrap();
     }
 
-    fn handle_global_keys(&mut self, key: Key) -> Option<bool> {
+    fn handle_global_keys(&mut self, key: Key) -> Option<AppCommand> {
         match key {
-            Key::Char('q') => Some(self.previous_view()),
+            Key::Char('q') => Some(AppCommand::ExitView),
             // Key::Char('\n') => {
             //     let container = self.selected;
             //     self.new_view(AppState::ContainerDetails(ContainerId(container)));
             // }
-            // Key::Char('d') => self.new_view(AppState::DaemonInfo),
+            Key::Char('d') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
             _ => None,
         }
     }
@@ -137,3 +155,17 @@ impl App {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ContainerId(pub usize);
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum AppCommand {
+    ExitView,
+    SwitchToView(ViewType),
+    NoOp,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ViewType {
+    ContainerList,
+    ContainerDetails,
+    DockerInfo,
+}
