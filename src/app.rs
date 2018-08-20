@@ -9,12 +9,12 @@ use termion::event::Key;
 use tui::{
     backend::{Backend, MouseBackend},
     layout::{Direction, Group, Rect, Size},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     widgets::{Paragraph, Widget},
     Terminal,
 };
 
-use views::{ContainerListView, DockerInfo, View};
+use views::{ContainerInfo, ContainerListView, DockerInfo, View};
 
 /// Contains the state of the application.
 pub struct App {
@@ -56,14 +56,10 @@ impl App {
         self.current_view_mut().refresh(docker);
     }
 
-    // /// Returns the currently selected container, or `None` if there are no containers.
-    // pub fn get_selected_container(&self) -> Option<&Container> {
-    //     self.containers.get(self.selected)
-    // }
-
     pub fn new_view(&mut self, view_type: ViewType) {
         let new_view = match view_type {
-            ViewType::DockerInfo => Box::new(DockerInfo::new()),
+            ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
+            ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
             _ => unimplemented!(),
         };
 
@@ -129,10 +125,6 @@ impl App {
     fn handle_global_keys(&mut self, key: Key) -> Option<AppCommand> {
         match key {
             Key::Char('q') => Some(AppCommand::ExitView),
-            // Key::Char('\n') => {
-            //     let container = self.selected;
-            //     self.new_view(AppState::ContainerDetails(ContainerId(container)));
-            // }
             Key::Char('d') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
             _ => None,
         }
@@ -141,31 +133,39 @@ impl App {
     fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: &Rect) {
         Paragraph::default()
             .wrap(true)
-            .style(Style::default().bg(Color::Blue).fg(Color::White))
+            .style(
+                Style::default()
+                    .bg(Color::Black)
+                    .fg(Color::White)
+                    .modifier(Modifier::Bold),
+            )
             .text(&format!(
-                "{{mod=bold Rocker \\\\m/ v0.1}}   {} containers, {} images, docker v{} ({})",
-                self.info.Containers,
-                self.info.Images,
-                self.version.Version,
-                self.version.ApiVersion,
+                " {version}      {containers}, {images}, {docker_version}",
+                version = "{fg=black Rocker v0.1}",
+                containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
+                images = format!("{{fg=green {}}} images", self.info.Images),
+                docker_version = format!(
+                    "docker v{} ({})",
+                    self.version.Version, self.version.ApiVersion
+                ),
             ))
             .render(t, rect);
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct ContainerId(pub usize);
+#[derive(Debug, Clone, PartialEq)]
+pub struct ContainerId(pub String);
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AppCommand {
     ExitView,
     SwitchToView(ViewType),
     NoOp,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ViewType {
     ContainerList,
-    ContainerDetails,
+    ContainerDetails(ContainerId),
     DockerInfo,
 }

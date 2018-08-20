@@ -16,7 +16,7 @@ use tui::{
     Terminal,
 };
 
-use app::AppCommand;
+use app::{AppCommand, ContainerId, ViewType};
 use views::View;
 
 pub struct ContainerListView {
@@ -163,6 +163,11 @@ impl View for ContainerListView {
                 // self.refresh();
                 Some(AppCommand::NoOp)
             }
+            Key::Char('\n') => {
+                let container = self.get_selected_container().unwrap();
+                let id = ContainerId(container.Id.clone());
+                Some(AppCommand::SwitchToView(ViewType::ContainerDetails(id)))
+            }
             _ => None,
         }
     }
@@ -185,7 +190,7 @@ impl View for ContainerListView {
     fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect) {
         Group::default()
             .direction(Direction::Vertical)
-            .sizes(&[Size::Percent(50), Size::Percent(50)])
+            .sizes(&[Size::Percent(70), Size::Percent(30)])
             .margin(0)
             .render(t, rect, |t, chunks| {
                 // Containers

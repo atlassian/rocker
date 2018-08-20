@@ -6,9 +6,11 @@ use tui::{backend::MouseBackend, layout::Rect, Terminal};
 
 use app::AppCommand;
 
+mod container_details;
 mod container_list;
 mod docker_info;
 
+pub use self::container_details::*;
 pub use self::container_list::*;
 pub use self::docker_info::*;
 
