@@ -15,7 +15,7 @@ use std::time::Duration;
 use termion::{event, input::TermRead};
 use tui::{backend::MouseBackend, Terminal};
 
-use app::{App, AppState, ContainerId};
+use app::App;
 use ui::draw;
 
 pub enum Event {

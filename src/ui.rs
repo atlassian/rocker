@@ -21,7 +21,7 @@ pub fn draw(t: &mut Terminal<MouseBackend>, app: &App) {
             // Status bar
             draw_status_bar(app, t, &chunks[0]);
 
-            match app.current_state {
+            match *app.current_view() {
                 AppState::ContainerList => draw_container_tab(app, t, &chunks[1]),
                 AppState::ContainerDetails(id) => draw_container_details(app, id, t, &chunks[1]),
                 AppState::DaemonInfo => draw_docker_tab(app, t, &chunks[1]),

@@ -23,8 +23,8 @@ pub struct App {
     pub selected: usize,
     /// Whether to only display currently running containers
     pub only_running: bool,
-    pub current_state: AppState,
-    pub previous_states: VecDeque<AppState>,
+    /// View stack: The top (=front) of the stack is the view that is displayed
+    pub view_stack: VecDeque<AppState>,
 }
 
 impl App {
@@ -34,6 +34,8 @@ impl App {
         let docker = Docker::new();
         let info = docker.info().unwrap();
         let version = docker.version().unwrap();
+        let mut views = VecDeque::new();
+        views.push_front(AppState::ContainerList);
         App {
             docker,
             size: Rect::default(),
@@ -42,8 +44,7 @@ impl App {
             containers: Vec::new(),
             selected: 0,
             only_running: true,
-            current_state: AppState::ContainerList,
-            previous_states: VecDeque::new(),
+            view_stack: views,
         }
     }
 
@@ -71,17 +72,19 @@ impl App {
     }
 
     pub fn new_view(&mut self, state: AppState) {
-        self.previous_states.push_front(self.current_state);
-        self.current_state = state;
+        self.view_stack.push_front(state);
     }
 
     pub fn previous_view(&mut self) -> bool {
-        if let Some(state) = self.previous_states.pop_front() {
-            self.current_state = state;
+        if let Some(_state) = self.view_stack.pop_front() {
             true
         } else {
             false
         }
+    }
+
+    pub fn current_view(&self) -> &AppState {
+        self.view_stack.front().expect("View stack is empty!")
     }
 
     pub fn handle_input(&mut self, key: Key) -> bool {
