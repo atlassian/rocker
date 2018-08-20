@@ -32,13 +32,13 @@ impl ContainerInfo {
 impl View for ContainerInfo {
     fn handle_input(&mut self, key: Key) -> Option<AppCommand> {
         match key {
-            Key::Up => {
+            Key::Up | Key::Char('k') => {
                 if self.scroll > 0 {
                     self.scroll -= 1;
                 }
                 Some(AppCommand::NoOp)
             }
-            Key::Down => {
+            Key::Down | Key::Char('j') => {
                 self.scroll += 1;
                 Some(AppCommand::NoOp)
             }

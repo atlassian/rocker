@@ -139,7 +139,7 @@ impl ContainerListView {
 impl View for ContainerListView {
     fn handle_input(&mut self, key: Key) -> Option<AppCommand> {
         match key {
-            Key::Down => {
+            Key::Down | Key::Char('j') => {
                 if !self.containers.is_empty() {
                     self.selected += 1;
                     if self.selected > self.containers.len() - 1 {
@@ -148,7 +148,7 @@ impl View for ContainerListView {
                 }
                 Some(AppCommand::NoOp)
             }
-            Key::Up => {
+            Key::Up | Key::Char('k') => {
                 if !self.containers.is_empty() {
                     if self.selected > 0 {
                         self.selected -= 1;
