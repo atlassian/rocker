@@ -57,7 +57,9 @@ impl App {
         let info = self.docker.info().unwrap();
         self.containers = containers;
         self.info = info;
-        if self.selected >= self.containers.len() {
+        if self.containers.is_empty() {
+            self.selected = 0;
+        } else if self.selected >= self.containers.len() {
             self.selected = self.containers.len() - 1;
         }
     }
