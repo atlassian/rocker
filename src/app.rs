@@ -4,6 +4,7 @@ use shiplift::{
     rep::{Container, Info, Version},
     ContainerListOptions, Docker,
 };
+use termion::event::Key;
 use tui::layout::Rect;
 
 /// Contains the state of the application.
@@ -82,6 +83,44 @@ impl App {
             false
         }
     }
+
+    pub fn handle_input(&mut self, key: Key) -> bool {
+        match key {
+            Key::Char('q') => {
+                if !self.previous_view() {
+                    return false;
+                }
+            }
+            Key::Down => {
+                if !self.containers.is_empty() {
+                    self.selected += 1;
+                    if self.selected > self.containers.len() - 1 {
+                        self.selected = 0;
+                    }
+                }
+            }
+            Key::Up => if !self.containers.is_empty() {
+                if self.selected > 0 {
+                    self.selected -= 1;
+                } else {
+                    self.selected = self.containers.len() - 1;
+                }
+            },
+            Key::Char('\n') => {
+                let container = self.selected;
+                self.new_view(AppState::ContainerDetails(ContainerId(container)));
+            }
+            Key::Char('d') => self.new_view(AppState::DaemonInfo),
+            // event::Key::Left => app.tabs.previous(),
+            // event::Key::Right => app.tabs.next(),
+            Key::Char('a') => {
+                self.only_running = !self.only_running;
+                self.refresh();
+            }
+            _ => {}
+        };
+        true
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -94,4 +133,14 @@ pub enum AppState {
     ContainerLogs(ContainerId),
     ContainerStats(ContainerId),
     DaemonInfo,
+}
+
+pub trait View {
+    fn handle_input(&mut self, app: &App, key: Key);
+}
+
+pub struct ContainerListView {}
+
+impl View for ContainerListView {
+    fn handle_input(&mut self, app: &App, key: Key) {}
 }

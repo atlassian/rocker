@@ -71,40 +71,9 @@ fn main() {
         let evt = rx.recv().unwrap();
         match evt {
             Event::Input(key) => {
-                match key {
-                    event::Key::Char('q') => {
-                        if !app.previous_view() {
-                            break;
-                        }
-                    }
-                    event::Key::Down => {
-                        if !app.containers.is_empty() {
-                            app.selected += 1;
-                            if app.selected > app.containers.len() - 1 {
-                                app.selected = 0;
-                            }
-                        }
-                    }
-                    event::Key::Up => if !app.containers.is_empty() {
-                        if app.selected > 0 {
-                            app.selected -= 1;
-                        } else {
-                            app.selected = app.containers.len() - 1;
-                        }
-                    },
-                    event::Key::Char('\n') => {
-                        let container = app.selected;
-                        app.new_view(AppState::ContainerDetails(ContainerId(container)));
-                    }
-                    event::Key::Char('d') => app.new_view(AppState::DaemonInfo),
-                    // event::Key::Left => app.tabs.previous(),
-                    // event::Key::Right => app.tabs.next(),
-                    event::Key::Char('a') => {
-                        app.only_running = !app.only_running;
-                        app.refresh();
-                    }
-                    _ => {}
-                };
+                if !app.handle_input(key) {
+                    break;
+                }
             }
             Event::Tick => app.refresh(),
         };
