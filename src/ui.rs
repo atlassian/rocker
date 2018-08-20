@@ -3,6 +3,7 @@ use std::time::Duration;
 use humantime;
 
 use app::{App, AppState, ContainerId};
+use shiplift::rep::Port;
 use tui::{
     backend::{Backend, MouseBackend},
     layout::{Direction, Group, Rect, Size},
@@ -102,6 +103,14 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
                     let duration = created_time.elapsed().unwrap();
                     // Truncate to second precision
                     let duration = Duration::new(duration.as_secs(), 0);
+                    let mut ports = c.Ports.clone();
+                    let ports_slice: &mut [Port] = ports.as_mut();
+                    ports_slice.sort_by_key(|p: &Port| p.PrivatePort);
+                    let ports_displayed = ports_slice
+                        .iter()
+                        .map(|p: &Port| display_port(p))
+                        .collect::<Vec<_>>()
+                        .join("\n                ");
 
                     format!(
                         "{{mod=bold {:15}}} {} ago\n\
@@ -110,7 +119,7 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {:?}\n\
                          {{mod=bold {:15}}} {}\n\
-                         {{mod=bold {:15}}} {:?}\n\
+                         {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {}\n\
                          {{mod=bold {:15}}} {:?}\n\
                          {{mod=bold {:15}}} {:?}",
@@ -127,7 +136,7 @@ fn draw_container_info<B: Backend>(app: &App, t: &mut Terminal<B>, rect: &Rect) 
                         "Names:",
                         c.Names.join(", "),
                         "Ports:",
-                        c.Ports,
+                        ports_displayed,
                         "Status:",
                         c.Status,
                         "SizeRW:",
@@ -166,4 +175,18 @@ fn draw_container_details<B: Backend>(
         .wrap(true)
         .raw(true)
         .render(t, rect);
+}
+
+fn display_port(port: &Port) -> String {
+    let mut s = String::new();
+    if let Some(ref ip) = port.IP {
+        s.push_str(&format!("{}:", ip));
+    }
+    s.push_str(&format!("{}", port.PrivatePort));
+    if let Some(ref public_port) = port.PublicPort {
+        s.push_str(&format!(" → {}", public_port));
+    }
+    s.push_str(&format!("/{}", port.Type));
+
+    s
 }
