@@ -45,7 +45,7 @@ impl ContainerListView {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let running_style = Style::default().fg(Color::Green);
-        let header = ["Container ID", "Image", "Command", "Status"];
+        let header = ["Container ID", "Name", "Image", "Command", "Status"];
         let rows: Vec<_> = self
             .containers
             .iter()
@@ -53,6 +53,7 @@ impl ContainerListView {
             .map(|(i, c)| {
                 let data: Vec<&str> = vec![
                     c.Id.as_ref(),
+                    Self::container_name(c).unwrap_or_default(),
                     c.Image.as_ref(),
                     c.Command.as_ref(),
                     c.Status.as_ref(),
@@ -69,7 +70,7 @@ impl ContainerListView {
 
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
-            .widths(&[15, 20, 30, 20])
+            .widths(&[15, 20, 20, 30, 20]) // TODO be smarter with sizes here
             .render(t, &rect);
     }
 
@@ -115,8 +116,8 @@ impl ContainerListView {
                             c.Image,
                             "Labels:",
                             c.Labels,
-                            "Names:",
-                            c.Names.join(", "),
+                            "Name:",
+                            Self::container_name(c).unwrap_or_else(|| ""),
                             "Ports:",
                             ports_displayed,
                             "Status:",
@@ -131,6 +132,16 @@ impl ContainerListView {
                     .as_str(),
             )
             .render(t, &rect);
+    }
+
+    fn container_name(container: &Container) -> Option<&str> {
+        container.Names.first().map(|name| {
+            if name.starts_with('/') {
+                &name[1..]
+            } else {
+                name.as_str()
+            }
+        })
     }
 }
 
