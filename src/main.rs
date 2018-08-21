@@ -50,6 +50,7 @@ fn main() {
         thread::sleep(Duration::from_secs(2));
     });
 
+    // Main event loop
     loop {
         // handle resize
         let size = terminal.size().unwrap();

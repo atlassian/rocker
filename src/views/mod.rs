@@ -10,10 +10,12 @@ use app::{AppCommand, ContainerId};
 mod container_details;
 mod container_list;
 mod docker_info;
+mod help;
 
 pub use self::container_details::*;
 pub use self::container_list::*;
 pub use self::docker_info::*;
+pub use self::help::*;
 
 /// This trait represents a view of the application i.e. a component that knows how to display
 /// itself, how to handle input, and how to refresh itself.
@@ -35,6 +37,7 @@ pub trait View {
 /// The different views that the application supports
 #[derive(Debug, Clone, PartialEq)]
 pub enum ViewType {
+    Help,
     ContainerList,
     ContainerDetails(ContainerId),
     DockerInfo,

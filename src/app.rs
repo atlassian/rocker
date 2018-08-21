@@ -14,7 +14,7 @@ use tui::{
     Terminal,
 };
 
-use views::{ContainerInfo, ContainerListView, DockerInfo, View, ViewType};
+use views::{ContainerInfo, ContainerListView, DockerInfo, HelpView, View, ViewType};
 
 /// The event type used in the main event loop of the application.
 pub enum AppEvent {
@@ -106,6 +106,7 @@ impl App {
         let new_view = match view_type {
             ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
             ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
+            ViewType::Help => Box::new(HelpView::new()) as Box<dyn View>,
             _ => unimplemented!(),
         };
 
@@ -156,6 +157,7 @@ impl App {
         match key {
             Key::Char('q') => Some(AppCommand::ExitView),
             Key::Char('d') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
+            Key::Char('?') | Key::Char('h') => Some(AppCommand::SwitchToView(ViewType::Help)),
             _ => None,
         }
     }
