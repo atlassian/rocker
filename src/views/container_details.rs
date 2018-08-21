@@ -49,7 +49,8 @@ impl View for ContainerInfo {
     fn refresh(&mut self, docker: Arc<Docker>) {
         self.details = docker.containers().get(&self.name).inspect().ok();
     }
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect) {
+
+    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
         let display_string = if let Some(ref info) = self.details {
             format!("{:#?}", info)
         } else {
@@ -61,6 +62,6 @@ impl View for ContainerInfo {
             .wrap(true)
             .scroll(self.scroll)
             .raw(true)
-            .render(t, rect);
+            .render(t, &rect);
     }
 }

@@ -93,9 +93,9 @@ impl App {
             .margin(0)
             .render(t, &self.size, |t, chunks| {
                 // Status bar
-                self.draw_status_bar(t, &chunks[0]);
+                self.draw_status_bar(t, chunks[0]);
 
-                self.current_view().draw(t, &chunks[1]);
+                self.current_view().draw(t, chunks[1]);
             });
 
         t.draw().unwrap();
@@ -163,7 +163,7 @@ impl App {
     }
 
     /// Draws the status bar at the top
-    fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: &Rect) {
+    fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
         Paragraph::default()
             .wrap(true)
             .style(
@@ -182,7 +182,7 @@ impl App {
                     self.version.Version, self.version.ApiVersion
                 ),
             ))
-            .render(t, rect);
+            .render(t, &rect);
     }
 }
 

@@ -31,7 +31,7 @@ pub trait View {
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
     /// Draws the view in the given area.
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect);
+    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect);
 }
 
 /// The different views that the application supports

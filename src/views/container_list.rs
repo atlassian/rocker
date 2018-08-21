@@ -41,7 +41,7 @@ impl ContainerListView {
         self.containers.get(self.selected)
     }
 
-    fn draw_container_list<B: Backend>(&self, t: &mut Terminal<B>, rect: &Rect) {
+    fn draw_container_list<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let running_style = Style::default().fg(Color::Green);
@@ -59,12 +59,10 @@ impl ContainerListView {
                 ];
                 if i == self.selected {
                     Row::StyledData(data.into_iter(), &selected_style)
+                } else if c.Status.starts_with("Up ") {
+                    Row::StyledData(data.into_iter(), &running_style)
                 } else {
-                    if c.Status.starts_with("Up ") {
-                        Row::StyledData(data.into_iter(), &running_style)
-                    } else {
-                        Row::StyledData(data.into_iter(), &normal_style)
-                    }
+                    Row::StyledData(data.into_iter(), &normal_style)
                 }
             })
             .collect();
@@ -72,10 +70,10 @@ impl ContainerListView {
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .widths(&[15, 20, 30, 20])
-            .render(t, rect);
+            .render(t, &rect);
     }
 
-    fn draw_container_info<B: Backend>(&self, t: &mut Terminal<B>, rect: &Rect) {
+    fn draw_container_info<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
         let current_container = self.get_selected_container();
         Paragraph::default()
             .block(Block::default().borders(Borders::ALL))
@@ -129,10 +127,10 @@ impl ContainerListView {
                             c.SizeRootFs,
                         )
                     })
-                    .unwrap_or("".to_string())
+                    .unwrap_or_else(|| "".to_string())
                     .as_str(),
             )
-            .render(t, rect);
+            .render(t, &rect);
     }
 }
 
@@ -187,17 +185,17 @@ impl View for ContainerListView {
         }
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect) {
+    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
         Group::default()
             .direction(Direction::Vertical)
             .sizes(&[Size::Percent(70), Size::Percent(30)])
             .margin(0)
-            .render(t, rect, |t, chunks| {
+            .render(t, &rect, |t, chunks| {
                 // Containers
-                self.draw_container_list(t, &chunks[0]);
+                self.draw_container_list(t, chunks[0]);
 
                 // Container details
-                self.draw_container_info(t, &chunks[1]);
+                self.draw_container_info(t, chunks[1]);
             });
     }
 }

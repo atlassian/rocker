@@ -31,7 +31,7 @@ impl View for DockerInfo {
         self.info = docker.info().ok();
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect) {
+    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
         let display_string = if let Some(ref info) = self.info {
             format!("{:#?}", info)
         } else {
@@ -41,6 +41,6 @@ impl View for DockerInfo {
             .text(&display_string)
             .wrap(true)
             .raw(true)
-            .render(t, rect);
+            .render(t, &rect);
     }
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use shiplift::{rep::ContainerDetails, Docker};
+use shiplift::Docker;
 use termion::event::Key;
 use tui::{
     backend::MouseBackend,
@@ -9,7 +9,7 @@ use tui::{
     Terminal,
 };
 
-use app::{AppCommand, ContainerId};
+use app::AppCommand;
 use views::View;
 
 pub struct HelpView {
@@ -41,13 +41,13 @@ impl View for HelpView {
 
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: &Rect) {
+    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
         Paragraph::default()
             .block(Block::default().borders(Borders::ALL))
             .text("TODO: Insert some help here...")
             .wrap(true)
             .scroll(self.scroll)
             .raw(true)
-            .render(t, rect);
+            .render(t, &rect);
     }
 }
