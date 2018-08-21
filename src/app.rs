@@ -14,7 +14,9 @@ use tui::{
     Terminal,
 };
 
-use views::{ContainerInfo, ContainerListView, DockerInfo, HelpView, View, ViewType};
+use views::{
+    ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView, View, ViewType,
+};
 
 /// The event type used in the main event loop of the application.
 pub enum AppEvent {
@@ -104,10 +106,11 @@ impl App {
     /// Instantiate a view of the type `view_type` and pushes it onto the view stack.
     fn new_view(&mut self, view_type: ViewType) {
         let new_view = match view_type {
+            ViewType::ContainerList => Box::new(ContainerListView::new()) as Box<dyn View>,
             ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
+            ViewType::ContainerLogs(id) => Box::new(ContainerLogsView::new(id)) as Box<dyn View>,
             ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
             ViewType::Help => Box::new(HelpView::new()) as Box<dyn View>,
-            _ => unimplemented!(),
         };
 
         self.view_stack.push_front(new_view);

@@ -9,11 +9,13 @@ use app::{AppCommand, ContainerId};
 
 mod container_details;
 mod container_list;
+mod container_logs;
 mod docker_info;
 mod help;
 
 pub use self::container_details::*;
 pub use self::container_list::*;
+pub use self::container_logs::*;
 pub use self::docker_info::*;
 pub use self::help::*;
 
@@ -40,5 +42,6 @@ pub enum ViewType {
     Help,
     ContainerList,
     ContainerDetails(ContainerId),
+    ContainerLogs(ContainerId),
     DockerInfo,
 }

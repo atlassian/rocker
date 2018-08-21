@@ -166,6 +166,11 @@ impl View for ContainerListView {
                 let id = ContainerId(container.Id.clone());
                 Some(AppCommand::SwitchToView(ViewType::ContainerDetails(id)))
             }
+            Key::Char('l') => {
+                let container = self.get_selected_container().unwrap();
+                let id = ContainerId(container.Id.clone());
+                Some(AppCommand::SwitchToView(ViewType::ContainerLogs(id)))
+            }
             _ => None,
         }
     }
