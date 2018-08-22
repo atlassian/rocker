@@ -174,7 +174,7 @@ impl App {
     fn handle_global_keys(&mut self, key: Key) -> Option<AppCommand> {
         match key {
             Key::Char('q') => Some(AppCommand::ExitView),
-            Key::Char('d') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
+            Key::Char('v') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
             Key::Char('?') | Key::Char('h') => Some(AppCommand::SwitchToView(ViewType::Help)),
             _ => None,
         }

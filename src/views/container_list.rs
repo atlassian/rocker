@@ -200,6 +200,16 @@ impl View for ContainerListView {
                     Err(err) => Some(AppCommand::ErrorMsg(format!("{}", err))),
                 }
             }
+            Key::Char('d') => {
+                // delete
+                let selected_container = self.get_selected_container().unwrap();
+                let containers = docker.containers();
+                let container = containers.get(&selected_container.Id);
+                match container.delete() {
+                    Ok(_) => Some(AppCommand::NoOp),
+                    Err(err) => Some(AppCommand::ErrorMsg(format!("{}", err))),
+                }
+            }
             _ => None,
         }
     }
