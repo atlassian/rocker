@@ -23,7 +23,8 @@ fn main() {
     let tick_tx = tx.clone();
 
     // App
-    let mut app = App::new();
+    let mut app =
+        App::new().unwrap_or_else(|e| panic!("Failed to connect to the Docker daemon: {}", e));
 
     // Terminal initialization
     let backend = MouseBackend::new().unwrap();

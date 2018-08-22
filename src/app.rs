@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
 
+use failure::*;
 use shiplift::{
     rep::{Info, Version},
     Docker,
@@ -33,7 +34,7 @@ pub struct App {
     /// The current size of the application
     pub size: Rect,
     /// Version info of the Docker daemon
-    version: Version,
+    docker_version: Version,
     /// System info of the Docker daemon
     info: Info,
     /// View stack: The top (=front) of the stack is the view that is displayed
@@ -44,20 +45,21 @@ pub struct App {
 impl App {
     /// Create a new instance of `App`. It will initialize the Docker client and make a couple of
     /// calls to the Docker daemon to get some system info and version info.
-    pub fn new() -> App {
+    pub fn new() -> Result<App, Error> {
         let docker = Arc::new(Docker::new());
-        let info = docker.info().unwrap();
-        let version = docker.version().unwrap();
-        let mut views: VecDeque<Box<View>> = VecDeque::new();
-        views.push_front(Box::new(ContainerListView::new()));
-        App {
+        let info = docker.info()?;
+        let docker_version = docker.version()?;
+        let mut app = App {
             docker,
             size: Rect::default(),
-            version,
+            docker_version,
             info,
-            view_stack: views,
+            view_stack: VecDeque::new(),
             err_msg: None,
-        }
+        };
+        app.new_view(ViewType::ContainerList);
+
+        Ok(app)
     }
 
     /// Refreshes the state of the application (i.e. list of containers, system information, etc).
@@ -197,7 +199,7 @@ impl App {
                 images = format!("{{fg=green {}}} images", self.info.Images),
                 docker_version = format!(
                     "docker v{} ({})",
-                    self.version.Version, self.version.ApiVersion
+                    self.docker_version.Version, self.docker_version.ApiVersion
                 ),
             ))
             .render(t, &rect);
