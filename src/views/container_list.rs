@@ -146,7 +146,7 @@ impl ContainerListView {
 }
 
 impl View for ContainerListView {
-    fn handle_input(&mut self, key: Key) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, docker: Arc<Docker>) -> Option<AppCommand> {
         match key {
             Key::Down | Key::Char('j') => {
                 if !self.containers.is_empty() {
@@ -181,6 +181,24 @@ impl View for ContainerListView {
                 let container = self.get_selected_container().unwrap();
                 let id = ContainerId(container.Id.clone());
                 Some(AppCommand::SwitchToView(ViewType::ContainerLogs(id)))
+            }
+            Key::Char('p') => {
+                let selected_container = self.get_selected_container().unwrap();
+                let containers = docker.containers();
+                let container = containers.get(&selected_container.Id);
+                match container.pause() {
+                    Ok(_) => Some(AppCommand::NoOp),
+                    Err(err) => Some(AppCommand::ErrorMsg(format!("{}", err))),
+                }
+            }
+            Key::Char('P') => {
+                let selected_container = self.get_selected_container().unwrap();
+                let containers = docker.containers();
+                let container = containers.get(&selected_container.Id);
+                match container.unpause() {
+                    Ok(_) => Some(AppCommand::NoOp),
+                    Err(err) => Some(AppCommand::ErrorMsg(format!("{}", err))),
+                }
             }
             _ => None,
         }

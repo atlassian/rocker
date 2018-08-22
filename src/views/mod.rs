@@ -26,7 +26,7 @@ pub trait View {
     ///
     /// If the view can handle this key, it should return an `AppCommand` (which can potentially be
     /// NoOp). Otherwise, it should return `None`.
-    fn handle_input(&mut self, key: Key) -> Option<AppCommand>;
+    fn handle_input(&mut self, key: Key, docker: Arc<Docker>) -> Option<AppCommand>;
 
     /// Refresh the data displayed by this view (potentially using the provided handle to the
     /// Docker API). The default implementation doesn't do anything.

@@ -23,7 +23,7 @@ impl DockerInfo {
 }
 
 impl View for DockerInfo {
-    fn handle_input(&mut self, _key: Key) -> Option<AppCommand> {
+    fn handle_input(&mut self, _key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
         None
     }
 

@@ -23,7 +23,7 @@ impl HelpView {
 }
 
 impl View for HelpView {
-    fn handle_input(&mut self, key: Key) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
         match key {
             Key::Up | Key::Char('k') => {
                 if self.scroll > 0 {

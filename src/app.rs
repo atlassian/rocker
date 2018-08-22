@@ -29,15 +29,16 @@ pub enum AppEvent {
 /// Contains the state of the application.
 pub struct App {
     /// The client used to access the Docker daemon
-    pub docker: Arc<Docker>,
+    docker: Arc<Docker>,
     /// The current size of the application
     pub size: Rect,
     /// Version info of the Docker daemon
-    pub version: Version,
+    version: Version,
     /// System info of the Docker daemon
-    pub info: Info,
+    info: Info,
     /// View stack: The top (=front) of the stack is the view that is displayed
-    pub view_stack: VecDeque<Box<View>>,
+    view_stack: VecDeque<Box<View>>,
+    err_msg: Option<String>,
 }
 
 impl App {
@@ -55,6 +56,7 @@ impl App {
             version,
             info,
             view_stack: views,
+            err_msg: None,
         }
     }
 
@@ -69,9 +71,10 @@ impl App {
     /// Handles the given key press. Returns `false` to signify to the main loop that the
     /// application should exit.
     pub fn handle_input(&mut self, key: Key) -> bool {
+        let docker = self.docker.clone();
         let command = self
             .handle_global_keys(key)
-            .or_else(|| self.current_view_mut().handle_input(key))
+            .or_else(|| self.current_view_mut().handle_input(key, docker))
             .unwrap_or(AppCommand::NoOp);
 
         match command {
@@ -82,6 +85,7 @@ impl App {
                 return self.previous_view();
             }
             AppCommand::NoOp => { /* NoOp */ }
+            AppCommand::ErrorMsg(msg) => self.err_msg = Some(msg),
         }
 
         true
@@ -89,15 +93,26 @@ impl App {
 
     /// Draws the application in the given terminal.
     pub fn draw(&self, t: &mut Terminal<MouseBackend>) {
+        let size = t.size().unwrap();
+        let main_view_height = size.height - 2;
+
         Group::default()
             .direction(Direction::Vertical)
-            .sizes(&[Size::Fixed(1), Size::Percent(100)])
+            .sizes(&[
+                Size::Fixed(1),
+                Size::Fixed(main_view_height),
+                Size::Fixed(1),
+            ])
             .margin(0)
             .render(t, &self.size, |t, chunks| {
-                // Status bar
+                // title bar
                 self.draw_status_bar(t, chunks[0]);
 
+                // current view
                 self.current_view().draw(t, chunks[1]);
+
+                // Status message
+                self.draw_status_message(t, chunks[2]);
             });
 
         t.draw().unwrap();
@@ -165,7 +180,7 @@ impl App {
         }
     }
 
-    /// Draws the status bar at the top
+    /// Draws the title bar at the top
     fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
         Paragraph::default()
             .wrap(true)
@@ -187,6 +202,27 @@ impl App {
             ))
             .render(t, &rect);
     }
+
+    fn draw_status_message<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
+        if let Some(ref msg) = self.err_msg {
+            Paragraph::default()
+                .wrap(true)
+                .style(
+                    Style::default()
+                        .bg(Color::Red)
+                        .fg(Color::White)
+                        .modifier(Modifier::Bold),
+                )
+                .text(msg)
+                .render(t, &rect);
+        } else {
+            Paragraph::default()
+                .wrap(true)
+                .style(Style::default().bg(Color::Black).fg(Color::White))
+                .text("No message")
+                .render(t, &rect);
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -197,4 +233,5 @@ pub enum AppCommand {
     ExitView,
     SwitchToView(ViewType),
     NoOp,
+    ErrorMsg(String),
 }
