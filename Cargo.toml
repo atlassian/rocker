@@ -3,8 +3,12 @@ name = "rocker"
 version = "0.1.0"
 authors = ["Antoine Busch <abusch@atlassian.com>"]
 
+[[bin]]
+bench = false
+path = "src/main.rs"
+name = "rkr"
+
 [dependencies]
-# rust_docker = { path = "/home/abusch/code/rust/docker.rs" }
 failure = "0.1"
 humantime = "1.1"
 shiplift = "0.3"
