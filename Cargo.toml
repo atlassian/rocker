@@ -9,8 +9,8 @@ path = "src/main.rs"
 name = "rkr"
 
 [dependencies]
+bytesize = "1"
 failure = "0.1"
-humantime = "1.1"
-shiplift = "0.3"
+shiplift = { git = "https://github.com/abusch/shiplift", branch = "fixes" }
 termion = "*"
 tui = "0.2"

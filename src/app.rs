@@ -16,7 +16,8 @@ use tui::{
 };
 
 use views::{
-    ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView, View, ViewType,
+    ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView, ImagesListView,
+    View, ViewType,
 };
 
 /// The event type used in the main event loop of the application.
@@ -82,6 +83,7 @@ impl App {
         match command {
             AppCommand::SwitchToView(view_type) => {
                 self.new_view(view_type);
+                self.refresh();
             }
             AppCommand::ExitView => {
                 return self.previous_view();
@@ -89,6 +91,8 @@ impl App {
             AppCommand::NoOp => { /* NoOp */ }
             AppCommand::ErrorMsg(msg) => self.err_msg = Some(msg),
         }
+
+        self.refresh();
 
         true
     }
@@ -128,6 +132,7 @@ impl App {
             ViewType::ContainerLogs(id) => Box::new(ContainerLogsView::new(id)) as Box<dyn View>,
             ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
             ViewType::Help => Box::new(HelpView::new()) as Box<dyn View>,
+            ViewType::ImagesList => Box::new(ImagesListView::new()) as Box<dyn View>,
         };
 
         self.view_stack.push_front(new_view);
@@ -176,6 +181,7 @@ impl App {
     fn handle_global_keys(&mut self, key: Key) -> Option<AppCommand> {
         match key {
             Key::Char('q') => Some(AppCommand::ExitView),
+            Key::Char('i') => Some(AppCommand::SwitchToView(ViewType::ImagesList)),
             Key::Char('v') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
             Key::Char('?') | Key::Char('h') => Some(AppCommand::SwitchToView(ViewType::Help)),
             _ => None,

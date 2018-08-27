@@ -1,5 +1,5 @@
+extern crate bytesize;
 extern crate failure;
-extern crate humantime;
 extern crate shiplift;
 extern crate termion;
 extern crate tui;

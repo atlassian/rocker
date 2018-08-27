@@ -1,8 +1,6 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use humantime;
-
 use shiplift::{
     rep::{Container, Port},
     ContainerListOptions, Docker,
@@ -17,7 +15,7 @@ use tui::{
 };
 
 use app::{AppCommand, ContainerId};
-use views::{View, ViewType};
+use views::{human_duration, View, ViewType};
 
 pub struct ContainerListView {
     /// List of containers to display
@@ -51,12 +49,12 @@ impl ContainerListView {
             .iter()
             .enumerate()
             .map(|(i, c)| {
-                let data: Vec<&str> = vec![
-                    c.Id.as_ref(),
-                    Self::container_name(c).unwrap_or_default(),
-                    c.Image.as_ref(),
-                    c.Command.as_ref(),
-                    c.Status.as_ref(),
+                let data: Vec<String> = vec![
+                    c.Id.clone(),
+                    Self::container_name(c).unwrap_or_default().to_string(),
+                    c.Image.clone(),
+                    c.Command.clone(),
+                    c.Status.clone(),
                 ];
                 if i == self.selected {
                     Row::StyledData(data.into_iter(), &selected_style)
@@ -84,8 +82,6 @@ impl ContainerListView {
                     .map(|c| {
                         let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
                         let duration = created_time.elapsed().unwrap();
-                        // Truncate to second precision
-                        let duration = Duration::new(duration.as_secs(), 0);
                         let mut ports = c.Ports.clone();
                         let ports_slice: &mut [Port] = ports.as_mut();
                         ports_slice.sort_by_key(|p: &Port| p.PrivatePort);
@@ -107,7 +103,7 @@ impl ContainerListView {
                              {{mod=bold {:15}}} {:?}\n\
                              {{mod=bold {:15}}} {:?}",
                             "Created:",
-                            humantime::format_duration(duration),
+                            human_duration(&duration),
                             "Command:",
                             c.Command,
                             "Id:",
