@@ -1,16 +1,14 @@
 # Docker + Rust = Rocker \m/
-
 Rocker is a text-mode UI to manage your docker containers and images. It communicates with the docker container via a local UNIX socket.
 
 ## Installing rocker
-
 To compile and install rocker you need a working Rust environment. You can use [Rustup](https://rustup.rs/) to install Rust on your system. Rocker should compile fine on stable or nightly.
 
 Once you've cloned this repository, simply type `cargo install` (or `cargo install -f` if you've previously installed it). You can then type `rkr` to start it.
 
 ## Current features
-
 At the moment, rocker supports:
+
 * Viewing containers, both running and stopped
 * Pausing / unpausing containers
 * Viewing logs for a running container
