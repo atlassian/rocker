@@ -200,9 +200,9 @@ impl App {
             )
             .text(&format!(
                 " {version}      {containers}, {images}, {docker_version}",
-                version = "{fg=black Rocker v0.1}",
+                version = "{fg=white Rocker v0.1}",
                 containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
-                images = format!("{{fg=green {}}} images", self.info.Images),
+                images = format!("{{fg=light_green {}}} images", self.info.Images),
                 docker_version = format!(
                     "docker v{} ({})",
                     self.docker_version.Version, self.docker_version.ApiVersion

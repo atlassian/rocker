@@ -399,7 +399,7 @@ dependencies = [
 [[package]]
 name = "shiplift"
 version = "0.3.2"
-source = "git+https://github.com/abusch/shiplift?branch=fixes#de1be576475bb23e765636d74f631e49433d4759"
+source = "git+https://github.com/abusch/shiplift?branch=fixes#7c54f068de9927f8d385bb286c3f9e1ffa881a15"
 dependencies = [
  "byteorder 1.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 0.2.20 (registry+https://github.com/rust-lang/crates.io-index)",

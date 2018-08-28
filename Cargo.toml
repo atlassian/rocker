@@ -12,5 +12,6 @@ name = "rkr"
 bytesize = "1"
 failure = "0.1"
 shiplift = { git = "https://github.com/abusch/shiplift", branch = "fixes" }
+# shiplift = { path = "/home/abusch/code/rust/shiplift" }
 termion = "*"
 tui = "0.2"
