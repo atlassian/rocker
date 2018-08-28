@@ -1,6 +1,6 @@
 [package]
 name = "rocker"
-version = "0.1.0-alpha.0"
+version = "0.1.0"
 authors = ["Antoine Busch <abusch@atlassian.com>"]
 description = "Text-mode UI for Docker"
 keywords = ["tui", "docker"]
