@@ -44,7 +44,24 @@ impl View for HelpView {
     fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
         Paragraph::default()
             .block(Block::default().borders(Borders::ALL))
-            .text("TODO: Insert some help here...")
+            .text(
+                "KEYS:
+
+? - help
+q - exit view
+i - switch to view: images list
+v - switch to view: docker info
+k - up
+j - down
+s - stop container      in view: container list
+S - start container     in view: container list
+p - pause container     in view: container list
+P - unpause container   in view: container list
+d - delete container    in view: container list
+l - container logs      in view: container list
+\u{23CE} - container details   in view: container list
+",
+            )
             .wrap(true)
             .scroll(self.scroll)
             .raw(true)
