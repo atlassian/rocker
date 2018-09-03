@@ -5,7 +5,7 @@ use termion::event::Key;
 use tui::{
     backend::MouseBackend,
     layout::Rect,
-    widgets::{Paragraph, Widget},
+    widgets::{Block, Borders, Paragraph, Widget},
     Terminal,
 };
 
@@ -38,6 +38,7 @@ impl View for DockerInfo {
             "Could not retrieve information from the Docker daemon.".to_string()
         };
         Paragraph::default()
+            .block(Block::default().borders(Borders::ALL))
             .text(&display_string)
             .wrap(true)
             .raw(true)
