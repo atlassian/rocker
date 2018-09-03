@@ -13,6 +13,7 @@ name = "rkr"
 
 [dependencies]
 bytesize = "1"
+crossbeam-channel="0.2"
 failure = "0.1"
 shiplift = { git = "https://github.com/abusch/shiplift", branch = "fixes" }
 # shiplift = { path = "/home/abusch/code/rust/shiplift" }

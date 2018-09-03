@@ -1,4 +1,5 @@
 extern crate bytesize;
+extern crate crossbeam_channel;
 extern crate failure;
 extern crate shiplift;
 extern crate termion;
@@ -7,8 +8,8 @@ extern crate tui;
 mod app;
 mod views;
 
+use crossbeam_channel::unbounded;
 use std::io;
-use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
@@ -18,7 +19,7 @@ use tui::{backend::MouseBackend, Terminal};
 use app::{App, AppEvent};
 
 fn main() {
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = unbounded();
     let input_tx = tx.clone();
     let tick_tx = tx.clone();
 
@@ -41,13 +42,13 @@ fn main() {
         let stdin = io::stdin();
         for c in stdin.keys() {
             let key = c.unwrap();
-            input_tx.send(AppEvent::Input(key)).unwrap();
+            input_tx.send(AppEvent::Input(key));
         }
     });
 
     // Ticking thread
     thread::spawn(move || loop {
-        tick_tx.send(AppEvent::Tick).unwrap();
+        tick_tx.send(AppEvent::Tick);
         thread::sleep(Duration::from_secs(2));
     });
 
