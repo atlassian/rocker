@@ -1,3 +1,4 @@
+extern crate byteorder;
 extern crate bytesize;
 extern crate crossbeam_channel;
 extern crate failure;
@@ -6,6 +7,7 @@ extern crate termion;
 extern crate tui;
 
 mod app;
+mod tty;
 mod views;
 
 use crossbeam_channel::unbounded;

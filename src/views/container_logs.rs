@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
-use shiplift::{tty::Tty, Docker, LogsOptions};
+use shiplift::{Docker, LogsOptions};
 use termion::event::Key;
 use tui::{
     backend::MouseBackend,
     layout::Rect,
-    widgets::{Block, Borders, Paragraph, Widget},
+    style::{Color, Style},
+    widgets::{Block, Borders, Item, List, Widget},
     Terminal,
 };
 
 use app::{AppCommand, ContainerId};
+use tty::{Tty, TtyLine};
 use views::View;
 
 pub struct ContainerLogsView {
@@ -63,17 +65,27 @@ impl View for ContainerLogsView {
     }
 
     fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
-        let logs = self
+        let stdout_style = Style::default().bg(Color::Black).fg(Color::White);
+        let stderr_style = Style::default().bg(Color::Black).fg(Color::Red);
+
+        let style = |l: &TtyLine| match l {
+            TtyLine::StdOut(_) => &stdout_style,
+            TtyLine::StdErr(_) => &stderr_style,
+        };
+        let formatted_lines = self
             .logs
             .as_ref()
-            .map(|t| t.stdout.as_ref())
-            .unwrap_or_else(|| "");
-        Paragraph::default()
+            .map(|t| {
+                t.lines
+                    .iter()
+                    .map(|l| Item::StyledData(format!("{}", l), style(l)))
+                    .collect()
+            })
+            .unwrap_or_else(|| vec![]);
+
+        List::new(formatted_lines.into_iter())
             .block(Block::default().borders(Borders::ALL))
-            .text(&logs)
-            .wrap(true)
-            .scroll(self.scroll)
-            .raw(true)
+            .style(Style::default().bg(Color::Black).fg(Color::White))
             .render(t, &rect);
     }
 }
