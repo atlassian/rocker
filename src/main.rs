@@ -2,9 +2,12 @@ extern crate byteorder;
 extern crate bytesize;
 extern crate crossbeam_channel;
 extern crate failure;
+#[macro_use]
+extern crate log;
 extern crate shiplift;
 extern crate termion;
 extern crate tui;
+extern crate tui_logger;
 
 mod app;
 mod tty;
@@ -15,12 +18,19 @@ use std::io;
 use std::thread;
 use std::time::Duration;
 
+use log::LevelFilter;
 use termion::input::TermRead;
 use tui::{backend::MouseBackend, Terminal};
+use tui_logger::{init_logger, set_default_level};
 
 use app::{App, AppEvent};
 
 fn main() {
+    // Initialise logger
+    init_logger(LevelFilter::Debug).unwrap();
+    set_default_level(LevelFilter::Info);
+    info!("Logging system initialised");
+
     let (tx, rx) = unbounded();
     let input_tx = tx.clone();
     let tick_tx = tx.clone();

@@ -51,6 +51,7 @@ impl View for HelpView {
 q - exit view
 i - switch to view: images list
 v - switch to view: docker info
+L - switch to view: application logs
 k - up
 j - down
 s - stop container      in view: container list

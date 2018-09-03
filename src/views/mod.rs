@@ -8,6 +8,7 @@ use tui::{backend::MouseBackend, layout::Rect, Terminal};
 
 use app::{AppCommand, ContainerId};
 
+mod app_logs;
 mod container_details;
 mod container_list;
 mod container_logs;
@@ -15,6 +16,7 @@ mod docker_info;
 mod help;
 mod images_list;
 
+pub use self::app_logs::*;
 pub use self::container_details::*;
 pub use self::container_list::*;
 pub use self::container_logs::*;
@@ -43,6 +45,7 @@ pub trait View {
 #[derive(Debug, Clone, PartialEq)]
 pub enum ViewType {
     Help,
+    AppLogs,
     ContainerList,
     ContainerDetails(ContainerId),
     ContainerLogs(ContainerId),

@@ -16,8 +16,8 @@ use tui::{
 };
 
 use views::{
-    ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView, ImagesListView,
-    View, ViewType,
+    AppLogsView, ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView,
+    ImagesListView, View, ViewType,
 };
 
 /// The event type used in the main event loop of the application.
@@ -133,6 +133,7 @@ impl App {
             ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
             ViewType::Help => Box::new(HelpView::new()) as Box<dyn View>,
             ViewType::ImagesList => Box::new(ImagesListView::new()) as Box<dyn View>,
+            ViewType::AppLogs => Box::new(AppLogsView::new()) as Box<dyn View>,
         };
 
         self.view_stack.push_front(new_view);
@@ -183,7 +184,8 @@ impl App {
             Key::Char('q') => Some(AppCommand::ExitView),
             Key::Char('i') => Some(AppCommand::SwitchToView(ViewType::ImagesList)),
             Key::Char('v') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
-            Key::Char('?') | Key::Char('h') => Some(AppCommand::SwitchToView(ViewType::Help)),
+            Key::Char('?') => Some(AppCommand::SwitchToView(ViewType::Help)),
+            Key::Char('L') => Some(AppCommand::SwitchToView(ViewType::AppLogs)),
             _ => None,
         }
     }
