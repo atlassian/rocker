@@ -1,4 +1,4 @@
-# Docker + Rust = Rocker \m/
+# Rust + Docker = 🤘 Rocker 🤘
 Rocker is a text-mode UI to manage your docker containers and images. It communicates with the docker container via a local UNIX socket.
 
 ## Installing rocker
