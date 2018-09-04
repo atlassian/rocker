@@ -21,14 +21,15 @@ use std::time::Duration;
 use log::LevelFilter;
 use termion::input::TermRead;
 use tui::{backend::MouseBackend, Terminal};
-use tui_logger::{init_logger, set_default_level};
+use tui_logger::{init_logger, set_default_level, set_level_for_target};
 
 use app::{App, AppEvent};
 
 fn main() {
     // Initialise logger
-    init_logger(LevelFilter::Debug).unwrap();
+    init_logger(LevelFilter::Trace).unwrap();
     set_default_level(LevelFilter::Info);
+    set_level_for_target("rkr", LevelFilter::Trace);
     info!("Logging system initialised");
 
     let (tx, rx) = unbounded();
@@ -61,10 +62,12 @@ fn main() {
     // Ticking thread
     thread::spawn(move || loop {
         tick_tx.send(AppEvent::Tick);
+        trace!("Tick");
         thread::sleep(Duration::from_secs(2));
     });
 
     // Main event loop
+    info!("Starting main event loop");
     loop {
         // handle resize
         let size = terminal.size().unwrap();

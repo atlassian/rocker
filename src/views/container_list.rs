@@ -182,24 +182,32 @@ impl View for ContainerListView {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
                 let container = containers.get(&selected_container.Id);
+                info!("Pausing container {}", selected_container.Id);
                 match container.pause() {
                     Ok(_) => Some(AppCommand::NoOp),
-                    Err(err) => Some(AppCommand::ErrorMsg(format!(
-                        "Failed to pause container: {}",
-                        err
-                    ))),
+                    Err(err) => {
+                        error!("Failed to pause container: {}", err);
+                        Some(AppCommand::ErrorMsg(format!(
+                            "Failed to pause container: {}",
+                            err
+                        )))
+                    }
                 }
             }
             Key::Char('P') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
                 let container = containers.get(&selected_container.Id);
+                info!("Un-pausing container {}", selected_container.Id);
                 match container.unpause() {
                     Ok(_) => Some(AppCommand::NoOp),
-                    Err(err) => Some(AppCommand::ErrorMsg(format!(
-                        "Failed to unpause container: {}",
-                        err
-                    ))),
+                    Err(err) => {
+                        error!("Failed to un-pause container: {}", err);
+                        Some(AppCommand::ErrorMsg(format!(
+                            "Failed to unpause container: {}",
+                            err
+                        )))
+                    }
                 }
             }
             Key::Char('s') => {
@@ -207,24 +215,32 @@ impl View for ContainerListView {
                 let containers = docker.containers();
                 let container = containers.get(&selected_container.Id);
                 // TODO use a timeout?
+                info!("Stopping container {}", selected_container.Id);
                 match container.stop(None) {
                     Ok(_) => Some(AppCommand::NoOp),
-                    Err(err) => Some(AppCommand::ErrorMsg(format!(
-                        "Failed to stop container: {}",
-                        err
-                    ))),
+                    Err(err) => {
+                        error!("Failed to stop container: {}", err);
+                        Some(AppCommand::ErrorMsg(format!(
+                            "Failed to stop container: {}",
+                            err
+                        )))
+                    }
                 }
             }
             Key::Char('S') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
                 let container = containers.get(&selected_container.Id);
+                info!("Starting container {}", selected_container.Id);
                 match container.start() {
                     Ok(_) => Some(AppCommand::NoOp),
-                    Err(err) => Some(AppCommand::ErrorMsg(format!(
-                        "Failed to start container: {}",
-                        err
-                    ))),
+                    Err(err) => {
+                        error!("Failed to start container: {}", err);
+                        Some(AppCommand::ErrorMsg(format!(
+                            "Failed to start container: {}",
+                            err
+                        )))
+                    }
                 }
             }
             Key::Char('d') => {
@@ -232,9 +248,13 @@ impl View for ContainerListView {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
                 let container = containers.get(&selected_container.Id);
+                info!("Deleting container {}", selected_container.Id);
                 match container.delete() {
                     Ok(_) => Some(AppCommand::NoOp),
-                    Err(err) => Some(AppCommand::ErrorMsg(format!("{}", err))),
+                    Err(err) => {
+                        error!("Failed to delete container: {}", err);
+                        Some(AppCommand::ErrorMsg(format!("{}", err)))
+                    }
                 }
             }
             _ => None,
