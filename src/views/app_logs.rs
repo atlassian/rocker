@@ -2,9 +2,16 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use log::LevelFilter;
 use shiplift::Docker;
 use termion::event::{Event, Key};
-use tui::{backend::MouseBackend, layout::Rect, widgets::Widget, Terminal};
+use tui::{
+    backend::MouseBackend,
+    layout::Rect,
+    style::{Color, Style},
+    widgets::Widget,
+    Terminal,
+};
 use tui_logger::{Dispatcher, EventListener, TuiLoggerSmartWidget, TuiWidgetState};
 
 use app::AppCommand;
@@ -17,8 +24,10 @@ pub struct AppLogsView {
 
 impl AppLogsView {
     pub fn new() -> AppLogsView {
+        let state = TuiWidgetState::new();
+        state.set_level_for_target("rkr", LevelFilter::Info);
         AppLogsView {
-            state: RefCell::new(TuiWidgetState::new()),
+            state: RefCell::new(state),
             dispatcher: Rc::new(RefCell::new(Dispatcher::new())),
         }
     }
@@ -39,6 +48,11 @@ impl View for AppLogsView {
         TuiLoggerSmartWidget::default()
             .state(&*self.state.borrow_mut())
             .dispatcher(self.dispatcher.clone())
+            .style_error(Style::default().fg(Color::Red))
+            .style_debug(Style::default().fg(Color::Green))
+            .style_warn(Style::default().fg(Color::Yellow))
+            .style_trace(Style::default().fg(Color::Magenta))
+            .style_info(Style::default().fg(Color::Cyan))
             .render(t, &rect);
     }
 }
