@@ -19,5 +19,5 @@ failure = "0.1"
 log = "0.4"
 shiplift = { git = "https://github.com/abusch/shiplift", branch = "fixes" }
 termion = "*"
-tui = "0.2"
-tui-logger = "0.1"
+tui = "0.3.0-beta.0"
+tui-logger = { path = "/home/abusch/code/rust/tui-logger" }

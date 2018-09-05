@@ -8,10 +8,10 @@ use shiplift::{
 use termion::event::Key;
 use tui::{
     backend::{Backend, MouseBackend},
-    layout::{Direction, Group, Rect, Size},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Paragraph, Row, Table, Widget},
-    Terminal,
+    widgets::{Block, Borders, Paragraph, Row, Table, Text, Widget},
+    Frame,
 };
 
 use app::{AppCommand, ContainerId};
@@ -39,7 +39,7 @@ impl ContainerListView {
         self.containers.get(self.selected)
     }
 
-    fn draw_container_list<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
+    fn draw_container_list<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let running_style = Style::default().fg(Color::Green);
@@ -69,65 +69,74 @@ impl ContainerListView {
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .widths(&[15, 20, 20, 30, 20]) // TODO be smarter with sizes here
-            .render(t, &rect);
+            .render(t, rect);
     }
 
-    fn draw_container_info<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
-        let current_container = self.get_selected_container();
-        Paragraph::default()
-            .block(Block::default().borders(Borders::ALL))
-            .wrap(true)
-            .text(
-                current_container
-                    .map(|c| {
-                        let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
-                        let duration = created_time.elapsed().unwrap();
-                        let mut ports = c.Ports.clone();
-                        let ports_slice: &mut [Port] = ports.as_mut();
-                        ports_slice.sort_by_key(|p: &Port| p.PrivatePort);
-                        let ports_displayed = ports_slice
-                            .iter()
-                            .map(|p: &Port| display_port(p))
-                            .collect::<Vec<_>>()
-                            .join("\n                ");
+    fn draw_container_info<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+        if let Some(c) = self.get_selected_container() {
+            let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
+            let duration = created_time.elapsed().unwrap();
+            let mut ports = c.Ports.clone();
+            let ports_slice: &mut [Port] = ports.as_mut();
+            ports_slice.sort_by_key(|p: &Port| p.PrivatePort);
+            let ports_displayed = ports_slice
+                .iter()
+                .map(|p: &Port| display_port(p))
+                .collect::<Vec<_>>()
+                .join("\n                ");
 
-                        format!(
-                            "{{mod=bold {:15}}} {} ago\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {:?}\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {}\n\
-                             {{mod=bold {:15}}} {:?}\n\
-                             {{mod=bold {:15}}} {:?}",
-                            "Created:",
-                            human_duration(&duration),
-                            "Command:",
-                            c.Command,
-                            "Id:",
-                            c.Id,
-                            "Image:",
-                            c.Image,
-                            "Labels:",
-                            c.Labels,
-                            "Name:",
-                            Self::container_name(c).unwrap_or_else(|| ""),
-                            "Ports:",
-                            ports_displayed,
-                            "Status:",
-                            c.Status,
-                            "SizeRW:",
-                            c.SizeRw,
-                            "SizeRootFs:",
-                            c.SizeRootFs,
-                        )
-                    })
-                    .unwrap_or_else(|| "".to_string())
-                    .as_str(),
-            )
-            .render(t, &rect);
+            let duration_text = format!("{:15} {} ago\n", "Created:", human_duration(&duration));
+            let text = vec![Text::Data(&duration_text)];
+            Paragraph::new(text.iter())
+                .block(Block::default().borders(Borders::ALL))
+                .wrap(true)
+                .render(t, rect);
+        } else {
+            Paragraph::new(vec![].iter())
+                .block(Block::default().borders(Borders::ALL))
+                .wrap(true)
+                .render(t, rect);
+        }
+
+        // .text(
+        //     current_container
+        //         .map(|c| {
+        //             format!(
+        //                 "{{mod=bold {:15}}} {} ago\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {:?}\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {}\n\
+        //                  {{mod=bold {:15}}} {:?}\n\
+        //                  {{mod=bold {:15}}} {:?}",
+        //                 "Created:",
+        //                 human_duration(&duration),
+        //                 "Command:",
+        //                 c.Command,
+        //                 "Id:",
+        //                 c.Id,
+        //                 "Image:",
+        //                 c.Image,
+        //                 "Labels:",
+        //                 c.Labels,
+        //                 "Name:",
+        //                 Self::container_name(c).unwrap_or_else(|| ""),
+        //                 "Ports:",
+        //                 ports_displayed,
+        //                 "Status:",
+        //                 c.Status,
+        //                 "SizeRW:",
+        //                 c.SizeRw,
+        //                 "SizeRootFs:",
+        //                 c.SizeRootFs,
+        //             )
+        //         })
+        //         .unwrap_or_else(|| "".to_string())
+        //         .as_str(),
+        // )
     }
 
     fn container_name(container: &Container) -> Option<&str> {
@@ -276,18 +285,18 @@ impl View for ContainerListView {
         }
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
-        Group::default()
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+        let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .sizes(&[Size::Percent(70), Size::Percent(30)])
+            .constraints(vec![Constraint::Percentage(70), Constraint::Percentage(30)])
             .margin(0)
-            .render(t, &rect, |t, chunks| {
-                // Containers
-                self.draw_container_list(t, chunks[0]);
+            .split(rect);
 
-                // Container details
-                self.draw_container_info(t, chunks[1]);
-            });
+        // Containers
+        self.draw_container_list(t, chunks[0]);
+
+        // Container details
+        self.draw_container_info(t, chunks[1]);
     }
 }
 

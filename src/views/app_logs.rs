@@ -10,7 +10,7 @@ use tui::{
     layout::Rect,
     style::{Color, Style},
     widgets::Widget,
-    Terminal,
+    Frame,
 };
 use tui_logger::{Dispatcher, EventListener, TuiLoggerSmartWidget, TuiWidgetState};
 
@@ -44,7 +44,7 @@ impl View for AppLogsView {
 
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         TuiLoggerSmartWidget::default()
             .state(&*self.state.borrow_mut())
             .dispatcher(self.dispatcher.clone())
@@ -53,6 +53,6 @@ impl View for AppLogsView {
             .style_warn(Style::default().fg(Color::Yellow))
             .style_trace(Style::default().fg(Color::Magenta))
             .style_info(Style::default().fg(Color::Cyan))
-            .render(t, &rect);
+            .render(t, rect);
     }
 }

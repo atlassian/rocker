@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use shiplift::Docker;
 use termion::event::Key;
-use tui::{backend::MouseBackend, layout::Rect, Terminal};
+use tui::{backend::MouseBackend, layout::Rect, Frame};
 
 use app::{AppCommand, ContainerId};
 
@@ -38,7 +38,7 @@ pub trait View {
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
     /// Draws the view in the given area.
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect);
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect);
 }
 
 /// The different views that the application supports

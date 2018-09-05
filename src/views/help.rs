@@ -5,8 +5,8 @@ use termion::event::Key;
 use tui::{
     backend::MouseBackend,
     layout::Rect,
-    widgets::{Block, Borders, Paragraph, Widget},
-    Terminal,
+    widgets::{Block, Borders, Paragraph, Text, Widget},
+    Frame,
 };
 
 use app::AppCommand;
@@ -41,31 +41,30 @@ impl View for HelpView {
 
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
-        Paragraph::default()
-            .block(Block::default().borders(Borders::ALL))
-            .text(
-                "KEYS:
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+        let text = vec![
+            Text::Data("KEYS:\n"),
+            Text::Data("? - help"),
+            Text::Data("q - exit view"),
+            Text::Data("i - switch to view: images list"),
+            Text::Data("v - switch to view: docker info"),
+            Text::Data("L - switch to view: application logs"),
+            Text::Data("k - up"),
+            Text::Data("j - down"),
+            Text::Data("s - stop container      in view: container list"),
+            Text::Data("S - start container     in view: container list"),
+            Text::Data("p - pause container     in view: container list"),
+            Text::Data("P - unpause container   in view: container list"),
+            Text::Data("d - delete container    in view: container list"),
+            Text::Data("l - container logs      in view: container list"),
+            Text::Data("\u{23CE} - container details   in view: container list"),
+        ];
 
-? - help
-q - exit view
-i - switch to view: images list
-v - switch to view: docker info
-L - switch to view: application logs
-k - up
-j - down
-s - stop container      in view: container list
-S - start container     in view: container list
-p - pause container     in view: container list
-P - unpause container   in view: container list
-d - delete container    in view: container list
-l - container logs      in view: container list
-\u{23CE} - container details   in view: container list
-",
-            )
+        Paragraph::new(text.iter())
+            .block(Block::default().borders(Borders::ALL))
             .wrap(true)
             .scroll(self.scroll)
             .raw(true)
-            .render(t, &rect);
+            .render(t, rect);
     }
 }

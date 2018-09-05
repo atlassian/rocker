@@ -7,7 +7,7 @@ use tui::{
     layout::Rect,
     style::{Color, Style},
     widgets::{Block, Borders, Item, List, Widget},
-    Terminal,
+    Frame,
 };
 
 use app::{AppCommand, ContainerId};
@@ -64,7 +64,7 @@ impl View for ContainerLogsView {
         self.logs = Some(tty);
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         let stdout_style = Style::default().bg(Color::Black).fg(Color::White);
         let stderr_style = Style::default().bg(Color::Black).fg(Color::Red);
 
@@ -86,6 +86,6 @@ impl View for ContainerLogsView {
         List::new(formatted_lines.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .style(Style::default().bg(Color::Black).fg(Color::White))
-            .render(t, &rect);
+            .render(t, rect);
     }
 }

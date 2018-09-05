@@ -9,10 +9,10 @@ use shiplift::{
 use termion::event::Key;
 use tui::{
     backend::{Backend, MouseBackend},
-    layout::{Direction, Group, Rect, Size},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Paragraph, Widget},
-    Terminal,
+    widgets::{Paragraph, Text, Widget},
+    Frame, Terminal,
 };
 
 use views::{
@@ -102,26 +102,26 @@ impl App {
         let size = t.size().unwrap();
         let main_view_height = size.height - 2;
 
-        Group::default()
+        let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .sizes(&[
-                Size::Fixed(1),
-                Size::Fixed(main_view_height),
-                Size::Fixed(1),
+            .constraints(vec![
+                Constraint::Length(1),
+                Constraint::Length(main_view_height),
+                Constraint::Length(1),
             ])
             .margin(0)
-            .render(t, &self.size, |t, chunks| {
-                // title bar
-                self.draw_status_bar(t, chunks[0]);
+            .split(size);
 
-                // current view
-                self.current_view().draw(t, chunks[1]);
+        t.draw(|mut f| {
+            // title bar
+            self.draw_status_bar(&mut f, chunks[0]);
 
-                // Status message
-                self.draw_status_message(t, chunks[2]);
-            });
+            // current view
+            self.current_view().draw(&mut f, chunks[1]);
 
-        t.draw().unwrap();
+            // Status message
+            self.draw_status_message(&mut f, chunks[2]);
+        }).unwrap();
     }
 
     /// Instantiate a view of the type `view_type` and pushes it onto the view stack.
@@ -191,8 +191,20 @@ impl App {
     }
 
     /// Draws the title bar at the top
-    fn draw_status_bar<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
-        Paragraph::default()
+    fn draw_status_bar<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+        let display_string = format!(
+            " {version}      {containers}, {images}, {docker_version}",
+            version = "{fg=white Rocker v0.1}",
+            containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
+            images = format!("{{fg=light_green {}}} images", self.info.Images),
+            docker_version = format!(
+                "docker v{} ({})",
+                self.docker_version.Version, self.docker_version.ApiVersion
+            ),
+        );
+        let text = vec![Text::Data(&display_string)];
+
+        Paragraph::new(text.iter())
             .wrap(true)
             .style(
                 Style::default()
@@ -200,38 +212,36 @@ impl App {
                     .fg(Color::White)
                     .modifier(Modifier::Bold),
             )
-            .text(&format!(
-                " {version}      {containers}, {images}, {docker_version}",
-                version = "{fg=white Rocker v0.1}",
-                containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
-                images = format!("{{fg=light_green {}}} images", self.info.Images),
-                docker_version = format!(
-                    "docker v{} ({})",
-                    self.docker_version.Version, self.docker_version.ApiVersion
-                ),
-            ))
-            .render(t, &rect);
+            // .text(&format!(
+            //     " {version}      {containers}, {images}, {docker_version}",
+            //     version = "{fg=white Rocker v0.1}",
+            //     containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
+            //     images = format!("{{fg=light_green {}}} images", self.info.Images),
+            //     docker_version = format!(
+            //         "docker v{} ({})",
+            //         self.docker_version.Version, self.docker_version.ApiVersion
+            //     ),
+            // ))
+            .render(t, rect);
     }
 
-    fn draw_status_message<B: Backend>(&self, t: &mut Terminal<B>, rect: Rect) {
-        if let Some(ref msg) = self.err_msg {
-            Paragraph::default()
-                .wrap(true)
-                .style(
-                    Style::default()
-                        .bg(Color::Red)
-                        .fg(Color::White)
-                        .modifier(Modifier::Bold),
-                )
-                .text(msg)
-                .render(t, &rect);
+    fn draw_status_message<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+        let text = if let Some(ref msg) = self.err_msg {
+            Text::StyledData(
+                msg,
+                Style::default()
+                    .bg(Color::Red)
+                    .fg(Color::White)
+                    .modifier(Modifier::Bold),
+            )
         } else {
-            Paragraph::default()
-                .wrap(true)
-                .style(Style::default().bg(Color::Black).fg(Color::White))
-                .text("No message")
-                .render(t, &rect);
-        }
+            Text::StyledData(
+                "No message",
+                Style::default().bg(Color::Black).fg(Color::White),
+            )
+        };
+
+        Paragraph::new(vec![text].iter()).wrap(true).render(t, rect);
     }
 }
 

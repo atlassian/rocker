@@ -10,7 +10,7 @@ use tui::{
     layout::Rect,
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Row, Table, Widget},
-    Terminal,
+    Frame,
 };
 
 use app::AppCommand;
@@ -67,7 +67,7 @@ impl View for ImagesListView {
         }
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let header = ["Image ID", "Tag", "Created", "Virtual Size"];
@@ -106,6 +106,6 @@ impl View for ImagesListView {
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .widths(&[10, 45, 15, 20]) // TODO be smarter with sizes here
-            .render(t, &rect);
+            .render(t, rect);
     }
 }

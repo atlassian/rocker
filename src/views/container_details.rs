@@ -5,8 +5,8 @@ use termion::event::Key;
 use tui::{
     backend::MouseBackend,
     layout::Rect,
-    widgets::{Block, Borders, Paragraph, Widget},
-    Terminal,
+    widgets::{Block, Borders, Paragraph, Text, Widget},
+    Frame,
 };
 
 use app::{AppCommand, ContainerId};
@@ -50,18 +50,19 @@ impl View for ContainerInfo {
         self.details = docker.containers().get(&self.name).inspect().ok();
     }
 
-    fn draw(&self, t: &mut Terminal<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         let display_string = if let Some(ref info) = self.details {
             format!("{:#?}", info)
         } else {
             "Could not retrieve container details.".to_string()
         };
-        Paragraph::default()
+        let text = vec![Text::Data(&display_string)];
+
+        Paragraph::new(text.iter())
             .block(Block::default().borders(Borders::ALL))
-            .text(&display_string)
             .wrap(true)
             .scroll(self.scroll)
             .raw(true)
-            .render(t, &rect);
+            .render(t, rect);
     }
 }
