@@ -43,21 +43,21 @@ impl View for HelpView {
 
     fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         let text = vec![
-            Text::Data("KEYS:\n"),
-            Text::Data("? - help"),
-            Text::Data("q - exit view"),
-            Text::Data("i - switch to view: images list"),
-            Text::Data("v - switch to view: docker info"),
-            Text::Data("L - switch to view: application logs"),
-            Text::Data("k - up"),
-            Text::Data("j - down"),
-            Text::Data("s - stop container      in view: container list"),
-            Text::Data("S - start container     in view: container list"),
-            Text::Data("p - pause container     in view: container list"),
-            Text::Data("P - unpause container   in view: container list"),
-            Text::Data("d - delete container    in view: container list"),
-            Text::Data("l - container logs      in view: container list"),
-            Text::Data("\u{23CE} - container details   in view: container list"),
+            Text::data("KEYS:\n"),
+            Text::data("? - help\n"),
+            Text::data("q - exit view\n"),
+            Text::data("i - switch to view: images list\n"),
+            Text::data("v - switch to view: docker info\n"),
+            Text::data("L - switch to view: application logs\n"),
+            Text::data("k - up\n"),
+            Text::data("j - down\n"),
+            Text::data("s - stop container      in view: container list\n"),
+            Text::data("S - start container     in view: container list\n"),
+            Text::data("p - pause container     in view: container list\n"),
+            Text::data("P - unpause container   in view: container list\n"),
+            Text::data("d - delete container    in view: container list\n"),
+            Text::data("l - container logs      in view: container list\n"),
+            Text::data("\u{23CE} - container details   in view: container list\n"),
         ];
 
         Paragraph::new(text.iter())

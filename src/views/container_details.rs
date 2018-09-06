@@ -56,7 +56,7 @@ impl View for ContainerInfo {
         } else {
             "Could not retrieve container details.".to_string()
         };
-        let text = vec![Text::Data(&display_string)];
+        let text = vec![Text::data(display_string)];
 
         Paragraph::new(text.iter())
             .block(Block::default().borders(Borders::ALL))

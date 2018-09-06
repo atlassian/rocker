@@ -86,7 +86,7 @@ impl ContainerListView {
                 .join("\n                ");
 
             let duration_text = format!("{:15} {} ago\n", "Created:", human_duration(&duration));
-            let text = vec![Text::Data(&duration_text)];
+            let text = vec![Text::data(duration_text)];
             Paragraph::new(text.iter())
                 .block(Block::default().borders(Borders::ALL))
                 .wrap(true)

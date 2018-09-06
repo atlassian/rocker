@@ -192,17 +192,18 @@ impl App {
 
     /// Draws the title bar at the top
     fn draw_status_bar<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
-        let display_string = format!(
-            " {version}      {containers}, {images}, {docker_version}",
-            version = "{fg=white Rocker v0.1}",
-            containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
-            images = format!("{{fg=light_green {}}} images", self.info.Images),
-            docker_version = format!(
+        let green = Style::default().fg(Color::LightGreen);
+        let text = vec![
+            Text::data("Rocker v0.1     "),
+            Text::styled_data(format!("{}", self.info.Containers), green),
+            Text::data(" containers, "),
+            Text::styled_data(format!("{}", self.info.Images), green),
+            Text::data(" images, "),
+            Text::data(format!(
                 "docker v{} ({})",
                 self.docker_version.Version, self.docker_version.ApiVersion
-            ),
-        );
-        let text = vec![Text::Data(&display_string)];
+            )),
+        ];
 
         Paragraph::new(text.iter())
             .wrap(true)
@@ -227,7 +228,7 @@ impl App {
 
     fn draw_status_message<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
         let text = if let Some(ref msg) = self.err_msg {
-            Text::StyledData(
+            Text::styled_data(
                 msg,
                 Style::default()
                     .bg(Color::Red)
@@ -235,7 +236,7 @@ impl App {
                     .modifier(Modifier::Bold),
             )
         } else {
-            Text::StyledData(
+            Text::styled_data(
                 "No message",
                 Style::default().bg(Color::Black).fg(Color::White),
             )
