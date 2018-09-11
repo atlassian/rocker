@@ -194,12 +194,12 @@ impl App {
     fn draw_status_bar<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
         let green = Style::default().fg(Color::LightGreen);
         let text = vec![
-            Text::data("Rocker v0.1     "),
-            Text::styled_data(format!("{}", self.info.Containers), green),
-            Text::data(" containers, "),
-            Text::styled_data(format!("{}", self.info.Images), green),
-            Text::data(" images, "),
-            Text::data(format!(
+            Text::raw("Rocker v0.1     "),
+            Text::styled(format!("{}", self.info.Containers), green),
+            Text::raw(" containers, "),
+            Text::styled(format!("{}", self.info.Images), green),
+            Text::raw(" images, "),
+            Text::raw(format!(
                 "docker v{} ({})",
                 self.docker_version.Version, self.docker_version.ApiVersion
             )),
@@ -228,7 +228,7 @@ impl App {
 
     fn draw_status_message<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
         let text = if let Some(ref msg) = self.err_msg {
-            Text::styled_data(
+            Text::styled(
                 msg,
                 Style::default()
                     .bg(Color::Red)
@@ -236,7 +236,7 @@ impl App {
                     .modifier(Modifier::Bold),
             )
         } else {
-            Text::styled_data(
+            Text::styled(
                 "No message",
                 Style::default().bg(Color::Black).fg(Color::White),
             )

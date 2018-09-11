@@ -43,21 +43,21 @@ impl View for HelpView {
 
     fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
         let text = vec![
-            Text::data("KEYS:\n"),
-            Text::data("? - help\n"),
-            Text::data("q - exit view\n"),
-            Text::data("i - switch to view: images list\n"),
-            Text::data("v - switch to view: docker info\n"),
-            Text::data("L - switch to view: application logs\n"),
-            Text::data("k - up\n"),
-            Text::data("j - down\n"),
-            Text::data("s - stop container      in view: container list\n"),
-            Text::data("S - start container     in view: container list\n"),
-            Text::data("p - pause container     in view: container list\n"),
-            Text::data("P - unpause container   in view: container list\n"),
-            Text::data("d - delete container    in view: container list\n"),
-            Text::data("l - container logs      in view: container list\n"),
-            Text::data("\u{23CE} - container details   in view: container list\n"),
+            Text::raw("KEYS:\n"),
+            Text::raw("? - help\n"),
+            Text::raw("q - exit view\n"),
+            Text::raw("i - switch to view: images list\n"),
+            Text::raw("v - switch to view: docker info\n"),
+            Text::raw("L - switch to view: application logs\n"),
+            Text::raw("k - up\n"),
+            Text::raw("j - down\n"),
+            Text::raw("s - stop container      in view: container list\n"),
+            Text::raw("S - start container     in view: container list\n"),
+            Text::raw("p - pause container     in view: container list\n"),
+            Text::raw("P - unpause container   in view: container list\n"),
+            Text::raw("d - delete container    in view: container list\n"),
+            Text::raw("l - container logs      in view: container list\n"),
+            Text::raw("\u{23CE} - container details   in view: container list\n"),
         ];
 
         Paragraph::new(text.iter())

@@ -6,7 +6,7 @@ use tui::{
     backend::MouseBackend,
     layout::Rect,
     style::{Color, Style},
-    widgets::{Block, Borders, Item, List, Widget},
+    widgets::{Block, Borders, List, Text, Widget},
     Frame,
 };
 
@@ -69,8 +69,8 @@ impl View for ContainerLogsView {
         let stderr_style = Style::default().bg(Color::Black).fg(Color::Red);
 
         let style = |l: &TtyLine| match l {
-            TtyLine::StdOut(_) => &stdout_style,
-            TtyLine::StdErr(_) => &stderr_style,
+            TtyLine::StdOut(_) => stdout_style,
+            TtyLine::StdErr(_) => stderr_style,
         };
         let formatted_lines = self
             .logs
@@ -78,7 +78,7 @@ impl View for ContainerLogsView {
             .map(|t| {
                 t.lines
                     .iter()
-                    .map(|l| Item::StyledData(format!("{}", l), style(l)))
+                    .map(|l| Text::styled(format!("{}", l), style(l)))
                     .collect()
             })
             .unwrap_or_else(|| vec![]);

@@ -96,9 +96,9 @@ impl View for ImagesListView {
                     bytesize::to_string(c.VirtualSize, false),
                 ];
                 if i == self.selected {
-                    Row::StyledData(data.into_iter(), &selected_style)
+                    Row::StyledData(data.into_iter(), selected_style)
                 } else {
-                    Row::StyledData(data.into_iter(), &normal_style)
+                    Row::StyledData(data.into_iter(), normal_style)
                 }
             })
             .collect();

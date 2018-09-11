@@ -57,11 +57,11 @@ impl ContainerListView {
                     c.Status.clone(),
                 ];
                 if i == self.selected {
-                    Row::StyledData(data.into_iter(), &selected_style)
+                    Row::StyledData(data.into_iter(), selected_style)
                 } else if c.Status.starts_with("Up ") {
-                    Row::StyledData(data.into_iter(), &running_style)
+                    Row::StyledData(data.into_iter(), running_style)
                 } else {
-                    Row::StyledData(data.into_iter(), &normal_style)
+                    Row::StyledData(data.into_iter(), normal_style)
                 }
             })
             .collect();
@@ -86,7 +86,7 @@ impl ContainerListView {
                 .join("\n                ");
 
             let duration_text = format!("{:15} {} ago\n", "Created:", human_duration(&duration));
-            let text = vec![Text::data(duration_text)];
+            let text = vec![Text::raw(duration_text)];
             Paragraph::new(text.iter())
                 .block(Block::default().borders(Borders::ALL))
                 .wrap(true)

@@ -37,7 +37,7 @@ impl View for DockerInfo {
         } else {
             "Could not retrieve information from the Docker daemon.".to_string()
         };
-        let text = vec![Text::data(display_string)];
+        let text = vec![Text::raw(display_string)];
 
         Paragraph::new(text.iter())
             .block(Block::default().borders(Borders::ALL))
