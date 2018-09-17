@@ -51,12 +51,12 @@ impl View for ContainerInfo {
     }
 
     fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
-        let display_string = if let Some(ref info) = self.details {
-            format!("{:#?}", info)
+        let data = if let Some(ref info) = self.details {
+            Text::raw(format!("{:#?}", info))
         } else {
-            "Could not retrieve container details.".to_string()
+            Text::raw("Could not retrieve container details.")
         };
-        let text = vec![Text::raw(display_string)];
+        let text = vec![data];
 
         Paragraph::new(text.iter())
             .block(Block::default().borders(Borders::ALL))

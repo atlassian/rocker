@@ -528,7 +528,7 @@ dependencies = [
  "shiplift 0.3.2 (git+https://github.com/abusch/shiplift?branch=fixes)",
  "termion 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tui 0.3.0-beta.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "tui-logger 0.1.13",
+ "tui-logger 0.1.13 (git+https://github.com/abusch/tui-logger?branch=tui3)",
 ]
 
 [[package]]
@@ -674,6 +674,7 @@ dependencies = [
 [[package]]
 name = "tui-logger"
 version = "0.1.13"
+source = "git+https://github.com/abusch/tui-logger?branch=tui3#1995412fca21ba12d5cfa65d63d14bf55801a0ff"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -904,6 +905,7 @@ dependencies = [
 "checksum time 0.1.40 (registry+https://github.com/rust-lang/crates.io-index)" = "d825be0eb33fda1a7e68012d51e9c7f451dc1a69391e7fdc197060bb8c56667b"
 "checksum traitobject 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "efd1f82c56340fdf16f2a953d7bda4f8fdffba13d93b00844c25572110b26079"
 "checksum tui 0.3.0-beta.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0edb4f1deb68d19349251ca6cd2ad40d8d5e2cc37b20c3b51ca5b617dae07321"
+"checksum tui-logger 0.1.13 (git+https://github.com/abusch/tui-logger?branch=tui3)" = "<none>"
 "checksum typeable 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "1410f6f91f21d1612654e7cc69193b0334f909dcf2c790c4826254fbb86f8887"
 "checksum unicase 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7f4765f83163b74f957c797ad9253caf97f103fb064d3999aea9568d09fc8a33"
 "checksum unicode-bidi 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "149319afc0ec718611d4a9208c0308e3b1b62dcfbd982e5e723f6ec35b909b92"

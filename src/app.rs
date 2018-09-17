@@ -108,8 +108,7 @@ impl App {
                 Constraint::Length(1),
                 Constraint::Length(main_view_height),
                 Constraint::Length(1),
-            ])
-            .margin(0)
+            ]).margin(0)
             .split(size);
 
         t.draw(|mut f| {
@@ -212,18 +211,7 @@ impl App {
                     .bg(Color::Black)
                     .fg(Color::White)
                     .modifier(Modifier::Bold),
-            )
-            // .text(&format!(
-            //     " {version}      {containers}, {images}, {docker_version}",
-            //     version = "{fg=white Rocker v0.1}",
-            //     containers = format!("{{fg=light_green {}}} containers", self.info.Containers),
-            //     images = format!("{{fg=light_green {}}} images", self.info.Images),
-            //     docker_version = format!(
-            //         "docker v{} ({})",
-            //         self.docker_version.Version, self.docker_version.ApiVersion
-            //     ),
-            // ))
-            .render(t, rect);
+            ).render(t, rect);
     }
 
     fn draw_status_message<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {

@@ -10,7 +10,7 @@ use tui::{
     backend::{Backend, MouseBackend},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Paragraph, Row, Table, Text, Widget},
+    widgets::{Block, Borders, List, Paragraph, Row, Table, Text, Widget},
     Frame,
 };
 
@@ -73,6 +73,7 @@ impl ContainerListView {
     }
 
     fn draw_container_info<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+        let mut text = vec![];
         if let Some(c) = self.get_selected_container() {
             let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
             let duration = created_time.elapsed().unwrap();
@@ -85,58 +86,32 @@ impl ContainerListView {
                 .collect::<Vec<_>>()
                 .join("\n                ");
 
-            let duration_text = format!("{:15} {} ago\n", "Created:", human_duration(&duration));
-            let text = vec![Text::raw(duration_text)];
-            Paragraph::new(text.iter())
-                .block(Block::default().borders(Borders::ALL))
-                .wrap(true)
-                .render(t, rect);
-        } else {
-            Paragraph::new(vec![].iter())
-                .block(Block::default().borders(Borders::ALL))
-                .wrap(true)
-                .render(t, rect);
+            text.push(Text::raw(format!(
+                "{:>15}: {} ago",
+                "Created",
+                human_duration(&duration)
+            )));
+            text.push(Text::raw(format!("{:>15}: {}", "Command", c.Command)));
+            text.push(Text::raw(format!("{:>15}: {}", "Image", c.Image)));
+            text.push(Text::raw(format!("{:>15}: {:?}", "Labels", c.Labels)));
+            text.push(Text::raw(format!(
+                "{:>15}: {}",
+                "Name",
+                Self::container_name(c).unwrap_or_else(|| "")
+            )));
+            text.push(Text::raw(format!("{:>15}: {}", "Ports", ports_displayed)));
+            text.push(Text::raw(format!("{:>15}: {}", "Status", c.Status)));
+            text.push(Text::raw(format!("{:>15}: {:?}", "SizeRW", c.SizeRw)));
+            text.push(Text::raw(format!(
+                "{:>15}: {:?}",
+                "SizeRootFs", c.SizeRootFs
+            )));
         }
 
-        // .text(
-        //     current_container
-        //         .map(|c| {
-        //             format!(
-        //                 "{{mod=bold {:15}}} {} ago\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {:?}\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {}\n\
-        //                  {{mod=bold {:15}}} {:?}\n\
-        //                  {{mod=bold {:15}}} {:?}",
-        //                 "Created:",
-        //                 human_duration(&duration),
-        //                 "Command:",
-        //                 c.Command,
-        //                 "Id:",
-        //                 c.Id,
-        //                 "Image:",
-        //                 c.Image,
-        //                 "Labels:",
-        //                 c.Labels,
-        //                 "Name:",
-        //                 Self::container_name(c).unwrap_or_else(|| ""),
-        //                 "Ports:",
-        //                 ports_displayed,
-        //                 "Status:",
-        //                 c.Status,
-        //                 "SizeRW:",
-        //                 c.SizeRw,
-        //                 "SizeRootFs:",
-        //                 c.SizeRootFs,
-        //             )
-        //         })
-        //         .unwrap_or_else(|| "".to_string())
-        //         .as_str(),
-        // )
+        List::new(text.into_iter())
+            .block(Block::default().borders(Borders::ALL))
+            // .wrap(true)
+            .render(t, rect);
     }
 
     fn container_name(container: &Container) -> Option<&str> {
