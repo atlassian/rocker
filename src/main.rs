@@ -99,7 +99,4 @@ fn main() {
             AppEvent::Tick => app.refresh(),
         };
     }
-
-    terminal.show_cursor().unwrap();
-    terminal.clear().unwrap();
 }
