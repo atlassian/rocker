@@ -3,7 +3,6 @@ use std::sync::Arc;
 use shiplift::{rep::Info, Docker};
 use termion::event::Key;
 use tui::{
-    backend::MouseBackend,
     layout::Rect,
     widgets::{Block, Borders, Paragraph, Text, Widget},
     Frame,
@@ -11,6 +10,7 @@ use tui::{
 
 use app::AppCommand;
 use views::View;
+use Backend;
 
 pub struct DockerInfo {
     info: Option<Info>,
@@ -31,7 +31,7 @@ impl View for DockerInfo {
         self.info = docker.info().ok();
     }
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let display_string = if let Some(ref info) = self.info {
             format!("{:#?}", info)
         } else {

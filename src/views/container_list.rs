@@ -7,15 +7,15 @@ use shiplift::{
 };
 use termion::event::Key;
 use tui::{
-    backend::{Backend, MouseBackend},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, List, Paragraph, Row, Table, Text, Widget},
+    widgets::{Block, Borders, List, Row, Table, Text, Widget},
     Frame,
 };
 
 use app::{AppCommand, ContainerId};
 use views::{human_duration, View, ViewType};
+use Backend;
 
 pub struct ContainerListView {
     /// List of containers to display
@@ -39,7 +39,7 @@ impl ContainerListView {
         self.containers.get(self.selected)
     }
 
-    fn draw_container_list<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+    fn draw_container_list(&self, t: &mut Frame<Backend>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let running_style = Style::default().fg(Color::Green);
@@ -63,8 +63,7 @@ impl ContainerListView {
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
                 }
-            })
-            .collect();
+            }).collect();
 
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
@@ -72,7 +71,7 @@ impl ContainerListView {
             .render(t, rect);
     }
 
-    fn draw_container_info<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+    fn draw_container_info(&self, t: &mut Frame<Backend>, rect: Rect) {
         let mut text = vec![];
         if let Some(c) = self.get_selected_container() {
             let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
@@ -260,7 +259,7 @@ impl View for ContainerListView {
         }
     }
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Percentage(70), Constraint::Percentage(30)])

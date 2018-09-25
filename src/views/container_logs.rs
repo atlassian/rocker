@@ -3,7 +3,6 @@ use std::sync::Arc;
 use shiplift::{Docker, LogsOptions};
 use termion::event::Key;
 use tui::{
-    backend::MouseBackend,
     layout::Rect,
     style::{Color, Style},
     widgets::{Block, Borders, List, Text, Widget},
@@ -13,6 +12,7 @@ use tui::{
 use app::{AppCommand, ContainerId};
 use tty::{Tty, TtyLine};
 use views::View;
+use Backend;
 
 pub struct ContainerLogsView {
     id: ContainerId,
@@ -58,13 +58,12 @@ impl View for ContainerLogsView {
                     .stdout(true)
                     .stderr(true)
                     .build(),
-            )
-            .unwrap();
+            ).unwrap();
         let tty = Tty::new(logs_reader);
         self.logs = Some(tty);
     }
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let stdout_style = Style::default().bg(Color::Black).fg(Color::White);
         let stderr_style = Style::default().bg(Color::Black).fg(Color::Red);
 
@@ -80,8 +79,7 @@ impl View for ContainerLogsView {
                     .iter()
                     .map(|l| Text::styled(format!("{}", l), style(l)))
                     .collect()
-            })
-            .unwrap_or_else(|| vec![]);
+            }).unwrap_or_else(|| vec![]);
 
         List::new(formatted_lines.into_iter())
             .block(Block::default().borders(Borders::ALL))

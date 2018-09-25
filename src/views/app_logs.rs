@@ -6,7 +6,6 @@ use log::LevelFilter;
 use shiplift::Docker;
 use termion::event::{Event, Key};
 use tui::{
-    backend::MouseBackend,
     layout::Rect,
     style::{Color, Style},
     widgets::Widget,
@@ -16,6 +15,7 @@ use tui_logger::{Dispatcher, EventListener, TuiLoggerSmartWidget, TuiWidgetState
 
 use app::AppCommand;
 use views::View;
+use Backend;
 
 pub struct AppLogsView {
     state: RefCell<TuiWidgetState>,
@@ -44,7 +44,7 @@ impl View for AppLogsView {
 
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         TuiLoggerSmartWidget::default()
             .state(&*self.state.borrow_mut())
             .dispatcher(self.dispatcher.clone())

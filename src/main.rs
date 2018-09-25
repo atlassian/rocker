@@ -19,11 +19,17 @@ use std::thread;
 use std::time::Duration;
 
 use log::LevelFilter;
-use termion::input::TermRead;
-use tui::{backend::MouseBackend, Terminal};
+use termion::{
+    input::{MouseTerminal, TermRead},
+    raw::{IntoRawMode, RawTerminal},
+    screen::AlternateScreen,
+};
+use tui::{backend::TermionBackend, Terminal};
 use tui_logger::{init_logger, set_default_level, set_level_for_target};
 
 use app::{App, AppEvent};
+
+type Backend = TermionBackend<AlternateScreen<MouseTerminal<RawTerminal<io::Stdout>>>>;
 
 fn main() {
     // Initialise logger
@@ -41,7 +47,10 @@ fn main() {
         App::new().unwrap_or_else(|e| panic!("Failed to connect to the Docker daemon: {}", e));
 
     // Terminal initialization
-    let backend = MouseBackend::new().unwrap();
+    let stdout = io::stdout().into_raw_mode().unwrap();
+    let stdout = MouseTerminal::from(stdout);
+    let stdout = AlternateScreen::from(stdout);
+    let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend).unwrap();
 
     // First draw call

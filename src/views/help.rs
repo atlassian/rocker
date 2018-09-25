@@ -3,7 +3,6 @@ use std::sync::Arc;
 use shiplift::Docker;
 use termion::event::Key;
 use tui::{
-    backend::MouseBackend,
     layout::Rect,
     widgets::{Block, Borders, Paragraph, Text, Widget},
     Frame,
@@ -11,6 +10,7 @@ use tui::{
 
 use app::AppCommand;
 use views::View;
+use Backend;
 
 pub struct HelpView {
     scroll: u16,
@@ -41,7 +41,7 @@ impl View for HelpView {
 
     fn refresh(&mut self, _docker: Arc<Docker>) {}
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let text = vec![
             Text::raw("KEYS:\n"),
             Text::raw("? - help\n"),

@@ -8,7 +8,6 @@ use shiplift::{
 };
 use termion::event::Key;
 use tui::{
-    backend::{Backend, MouseBackend},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     widgets::{Paragraph, Text, Widget},
@@ -19,6 +18,7 @@ use views::{
     AppLogsView, ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView,
     ImagesListView, View, ViewType,
 };
+use Backend;
 
 /// The event type used in the main event loop of the application.
 pub enum AppEvent {
@@ -98,7 +98,7 @@ impl App {
     }
 
     /// Draws the application in the given terminal.
-    pub fn draw(&self, t: &mut Terminal<MouseBackend>) {
+    pub fn draw(&self, t: &mut Terminal<Backend>) {
         let size = t.size().unwrap();
         let main_view_height = size.height - 2;
 
@@ -190,7 +190,7 @@ impl App {
     }
 
     /// Draws the title bar at the top
-    fn draw_status_bar<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+    fn draw_status_bar(&self, t: &mut Frame<Backend>, rect: Rect) {
         let green = Style::default().fg(Color::LightGreen);
         let text = vec![
             Text::raw("Rocker v0.1     "),
@@ -214,7 +214,7 @@ impl App {
             ).render(t, rect);
     }
 
-    fn draw_status_message<B: Backend>(&self, t: &mut Frame<B>, rect: Rect) {
+    fn draw_status_message(&self, t: &mut Frame<Backend>, rect: Rect) {
         let text = if let Some(ref msg) = self.err_msg {
             Text::styled(
                 msg,

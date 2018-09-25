@@ -6,7 +6,6 @@ use bytesize;
 use shiplift::{rep::Image, Docker, ImageListOptions};
 use termion::event::Key;
 use tui::{
-    backend::MouseBackend,
     layout::Rect,
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Row, Table, Widget},
@@ -15,6 +14,7 @@ use tui::{
 
 use app::AppCommand;
 use views::{human_duration, View};
+use Backend;
 
 pub struct ImagesListView {
     images: Vec<Image>,
@@ -67,7 +67,7 @@ impl View for ImagesListView {
         }
     }
 
-    fn draw(&self, t: &mut Frame<MouseBackend>, rect: Rect) {
+    fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let header = ["Image ID", "Tag", "Created", "Virtual Size"];
@@ -100,8 +100,7 @@ impl View for ImagesListView {
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
                 }
-            })
-            .collect();
+            }).collect();
 
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
