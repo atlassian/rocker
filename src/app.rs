@@ -24,8 +24,6 @@ use Backend;
 pub enum AppEvent {
     /// Represents a key press
     Input(Key),
-    /// Represents a periodic tick, used to trigger refresh of the views
-    Tick,
 }
 
 /// Contains the state of the application.
@@ -90,9 +88,8 @@ impl App {
             }
             AppCommand::NoOp => { /* NoOp */ }
             AppCommand::ErrorMsg(msg) => self.err_msg = Some(msg),
+            AppCommand::Refresh => self.refresh(),
         }
-
-        self.refresh();
 
         true
     }
@@ -185,6 +182,7 @@ impl App {
             Key::Char('v') => Some(AppCommand::SwitchToView(ViewType::DockerInfo)),
             Key::Char('?') => Some(AppCommand::SwitchToView(ViewType::Help)),
             Key::Char('L') => Some(AppCommand::SwitchToView(ViewType::AppLogs)),
+            Key::Char('R') => Some(AppCommand::Refresh),
             _ => None,
         }
     }
@@ -243,4 +241,5 @@ pub enum AppCommand {
     SwitchToView(ViewType),
     NoOp,
     ErrorMsg(String),
+    Refresh,
 }

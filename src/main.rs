@@ -16,7 +16,6 @@ mod views;
 use crossbeam_channel::unbounded;
 use std::io;
 use std::thread;
-use std::time::Duration;
 
 use log::LevelFilter;
 use termion::{
@@ -40,7 +39,6 @@ fn main() {
 
     let (tx, rx) = unbounded();
     let input_tx = tx.clone();
-    let tick_tx = tx.clone();
 
     // App
     let mut app =
@@ -68,13 +66,7 @@ fn main() {
         }
     });
 
-    // Ticking thread
-    thread::spawn(move || loop {
-        tick_tx.send(AppEvent::Tick);
-        trace!("Tick");
-        thread::sleep(Duration::from_secs(2));
-    });
-
+    app.refresh();
     // Main event loop
     info!("Starting main event loop");
     loop {
@@ -96,7 +88,6 @@ fn main() {
                     break;
                 }
             }
-            AppEvent::Tick => app.refresh(),
         };
     }
 }
