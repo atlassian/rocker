@@ -21,13 +21,13 @@ impl fmt::Display for TtyLine {
 
 /// Used to demux the output of Docker log, but still keep lines from stdout and stderr interlaced
 /// in the right order. This is adapted from `shiplift::tty::Tty`.
-pub struct Tty {
+pub struct InterlacedTty {
     pub lines: Vec<TtyLine>,
 }
 
 // https://docs.docker.com/engine/api/v1.26/#operation/ContainerAttach
-impl Tty {
-    pub fn new(mut stream: Box<Read>) -> Tty {
+impl InterlacedTty {
+    pub fn new(mut stream: impl Read) -> InterlacedTty {
         let mut lines: Vec<TtyLine> = vec![];
         loop {
             // 8 byte header [ STREAM_TYPE, 0, 0, 0, SIZE1, SIZE2, SIZE3, SIZE4 ]
@@ -63,6 +63,6 @@ impl Tty {
                 Err(_) => break,
             }
         }
-        Tty { lines }
+        InterlacedTty { lines }
     }
 }

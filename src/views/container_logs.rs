@@ -10,14 +10,14 @@ use tui::{
 };
 
 use app::{AppCommand, ContainerId};
-use tty::{Tty, TtyLine};
+use tty::{InterlacedTty, TtyLine};
 use views::View;
 use Backend;
 
 pub struct ContainerLogsView {
     id: ContainerId,
     scroll: u16,
-    logs: Option<Tty>,
+    logs: Option<InterlacedTty>,
 }
 
 impl ContainerLogsView {
@@ -59,7 +59,7 @@ impl View for ContainerLogsView {
                     .stderr(true)
                     .build(),
             ).unwrap();
-        let tty = Tty::new(logs_reader);
+        let tty = InterlacedTty::new(logs_reader);
         self.logs = Some(tty);
     }
 
