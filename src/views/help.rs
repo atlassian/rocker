@@ -46,6 +46,7 @@ impl View for HelpView {
             Text::raw("KEYS:\n"),
             Text::raw("? - help\n"),
             Text::raw("q - exit view\n"),
+            Text::raw("R - refresh view\n"),
             Text::raw("i - switch to view: images list\n"),
             Text::raw("v - switch to view: docker info\n"),
             Text::raw("L - switch to view: application logs\n"),
