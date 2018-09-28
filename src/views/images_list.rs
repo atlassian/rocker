@@ -32,13 +32,11 @@ impl ImagesListView {
 
 impl View for ImagesListView {
     fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+        let max_index = self.images.len() - 1;
         match key {
             Key::Down | Key::Char('j') => {
                 if !self.images.is_empty() {
-                    self.selected += 1;
-                    if self.selected > self.images.len() - 1 {
-                        self.selected = 0;
-                    }
+                    self.selected = (self.selected + 1).min(max_index);
                 }
                 Some(AppCommand::NoOp)
             }
@@ -46,9 +44,35 @@ impl View for ImagesListView {
                 if !self.images.is_empty() {
                     if self.selected > 0 {
                         self.selected -= 1;
-                    } else {
-                        self.selected = self.images.len() - 1;
                     }
+                }
+                Some(AppCommand::NoOp)
+            }
+            Key::PageDown | Key::Ctrl('d') => {
+                if !self.images.is_empty() {
+                    self.selected = (self.selected + 10).min(max_index);
+                }
+                Some(AppCommand::NoOp)
+            }
+            Key::PageUp | Key::Ctrl('u') => {
+                if !self.images.is_empty() {
+                    self.selected = if self.selected >= 10 {
+                        self.selected - 10
+                    } else {
+                        0
+                    };
+                }
+                Some(AppCommand::NoOp)
+            }
+            Key::End | Key::Char('G') => {
+                if !self.images.is_empty() {
+                    self.selected = max_index;
+                }
+                Some(AppCommand::NoOp)
+            }
+            Key::Home | Key::Char('g') => {
+                if !self.images.is_empty() {
+                    self.selected = 0;
                 }
                 Some(AppCommand::NoOp)
             }
@@ -71,6 +95,12 @@ impl View for ImagesListView {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
         let header = ["Image ID", "Tag", "Created", "Virtual Size"];
+        let height = rect.height as usize - 4; // 2 for border + 2 for header
+        let offset = if self.selected >= height {
+            self.selected - height + 1
+        } else {
+            0
+        };
         let rows: Vec<_> = self
             .images
             .iter()
@@ -100,7 +130,8 @@ impl View for ImagesListView {
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
                 }
-            }).collect();
+            }).skip(offset)
+            .collect();
 
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
