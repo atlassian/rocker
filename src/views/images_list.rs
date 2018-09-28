@@ -41,10 +41,8 @@ impl View for ImagesListView {
                 Some(AppCommand::NoOp)
             }
             Key::Up | Key::Char('k') => {
-                if !self.images.is_empty() {
-                    if self.selected > 0 {
-                        self.selected -= 1;
-                    }
+                if !self.images.is_empty() && self.selected > 0 {
+                    self.selected -= 1;
                 }
                 Some(AppCommand::NoOp)
             }

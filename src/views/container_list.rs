@@ -142,10 +142,8 @@ impl View for ContainerListView {
                 Some(AppCommand::NoOp)
             }
             Key::Up | Key::Char('k') => {
-                if !self.containers.is_empty() {
-                    if self.selected > 0 {
-                        self.selected -= 1;
-                    }
+                if !self.containers.is_empty() && self.selected > 0 {
+                    self.selected -= 1;
                 }
                 Some(AppCommand::NoOp)
             }
