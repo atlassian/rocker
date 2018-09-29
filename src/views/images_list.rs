@@ -92,7 +92,7 @@ impl View for ImagesListView {
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
         let normal_style = Style::default().fg(Color::White);
-        let header = ["Image ID", "Tag", "Created", "Virtual Size"];
+        let header = ["Image ID", "Parent", "Tag", "Created", "Virtual Size"];
         let height = rect.height as usize - 4; // 2 for border + 2 for header
         let offset = if self.selected >= height {
             self.selected - height + 1
@@ -109,12 +109,18 @@ impl View for ImagesListView {
                 let mut duration_str = human_duration(&duration);
                 duration_str.push_str(" ago");
                 let id = if c.Id.starts_with("sha256:") {
-                    (&c.Id[7..]).to_string()
+                    (&c.Id[7..17]).to_string()
                 } else {
                     c.Id.clone()
                 };
+                let parent = if c.ParentId.starts_with("sha256:") {
+                    (&c.ParentId[7..17]).to_string()
+                } else {
+                    c.ParentId.clone()
+                };
                 let data: Vec<String> = vec![
                     id,
+                    parent,
                     c.RepoTags
                         .as_ref()
                         .and_then(|tags| tags.first())
@@ -133,7 +139,7 @@ impl View for ImagesListView {
 
         Table::new(header.into_iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
-            .widths(&[10, 45, 15, 20]) // TODO be smarter with sizes here
+            .widths(&[10, 10, 45, 15, 20]) // TODO be smarter with sizes here
             .render(t, rect);
     }
 }

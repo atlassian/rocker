@@ -177,8 +177,7 @@ impl View for ContainerListView {
             }
             Key::Char('a') => {
                 self.only_running = !self.only_running;
-                // self.refresh();
-                Some(AppCommand::NoOp)
+                Some(AppCommand::Refresh)
             }
             Key::Char('\n') => {
                 let container = self.get_selected_container().unwrap();
