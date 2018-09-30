@@ -17,7 +17,7 @@ bytesize = "1"
 crossbeam-channel="0.2"
 failure = "0.1"
 log = "0.4"
-shiplift = { git = "https://github.com/abusch/shiplift", branch = "fixes" }
+shiplift = { git = "https://github.com/softprops/shiplift", branch = "master" }
 termion = "1.5"
 tui = "0.3.0-beta.3"
 # tui = { path="/home/abusch/code/rust/tui-rs" }
