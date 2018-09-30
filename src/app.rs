@@ -20,6 +20,19 @@ use views::{
 };
 use Backend;
 
+// Stolen from clap
+macro_rules! crate_version {
+    () => {
+        format!(
+            "{}.{}.{}-{}",
+            env!("CARGO_PKG_VERSION_MAJOR"),
+            env!("CARGO_PKG_VERSION_MINOR"),
+            env!("CARGO_PKG_VERSION_PATCH"),
+            option_env!("CARGO_PKG_VERSION_PRE").unwrap_or("")
+        )
+    };
+}
+
 /// The event type used in the main event loop of the application.
 pub enum AppEvent {
     /// Represents a key press
@@ -191,7 +204,7 @@ impl App {
     fn draw_status_bar(&self, t: &mut Frame<Backend>, rect: Rect) {
         let green = Style::default().fg(Color::LightGreen);
         let text = vec![
-            Text::raw("Rocker v0.1     "),
+            Text::raw(format!("Rocker v{}     ", crate_version!())),
             Text::styled(format!("{}", self.info.Containers), green),
             Text::raw(" containers, "),
             Text::styled(format!("{}", self.info.Images), green),
