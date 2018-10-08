@@ -56,15 +56,15 @@ impl ContainerListView {
             .enumerate()
             .map(|(i, c)| {
                 let data: Vec<String> = vec![
-                    c.Id.clone(),
+                    c.id.clone(),
                     Self::container_name(c).unwrap_or_default().to_string(),
-                    c.Image.clone(),
-                    c.Command.clone(),
-                    c.Status.clone(),
+                    c.image.clone(),
+                    c.command.clone(),
+                    c.status.clone(),
                 ];
                 if i == self.selected {
                     Row::StyledData(data.into_iter(), selected_style)
-                } else if c.Status.starts_with("Up ") {
+                } else if c.status.starts_with("Up ") {
                     Row::StyledData(data.into_iter(), running_style)
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
@@ -81,11 +81,11 @@ impl ContainerListView {
     fn draw_container_info(&self, t: &mut Frame<Backend>, rect: Rect) {
         let mut text = vec![];
         if let Some(c) = self.get_selected_container() {
-            let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.Created);
+            let created_time = ::std::time::UNIX_EPOCH + Duration::from_secs(c.created);
             let duration = created_time.elapsed().unwrap();
-            let mut ports = c.Ports.clone();
+            let mut ports = c.ports.clone();
             let ports_slice: &mut [Port] = ports.as_mut();
-            ports_slice.sort_by_key(|p: &Port| p.PrivatePort);
+            ports_slice.sort_by_key(|p: &Port| p.private_port);
             let ports_displayed = ports_slice
                 .iter()
                 .map(|p: &Port| display_port(p))
@@ -97,20 +97,20 @@ impl ContainerListView {
                 "Created",
                 human_duration(&duration)
             )));
-            text.push(Text::raw(format!("{:>15}: {}", "Command", c.Command)));
-            text.push(Text::raw(format!("{:>15}: {}", "Image", c.Image)));
-            text.push(Text::raw(format!("{:>15}: {:?}", "Labels", c.Labels)));
+            text.push(Text::raw(format!("{:>15}: {}", "Command", c.command)));
+            text.push(Text::raw(format!("{:>15}: {}", "Image", c.image)));
+            text.push(Text::raw(format!("{:>15}: {:?}", "Labels", c.labels)));
             text.push(Text::raw(format!(
                 "{:>15}: {}",
                 "Name",
                 Self::container_name(c).unwrap_or_else(|| "")
             )));
             text.push(Text::raw(format!("{:>15}: {}", "Ports", ports_displayed)));
-            text.push(Text::raw(format!("{:>15}: {}", "Status", c.Status)));
-            text.push(Text::raw(format!("{:>15}: {:?}", "SizeRW", c.SizeRw)));
+            text.push(Text::raw(format!("{:>15}: {}", "Status", c.status)));
+            text.push(Text::raw(format!("{:>15}: {:?}", "SizeRW", c.size_rw)));
             text.push(Text::raw(format!(
                 "{:>15}: {:?}",
-                "SizeRootFs", c.SizeRootFs
+                "SizeRootFs", c.size_root_fs
             )));
         }
 
@@ -121,7 +121,7 @@ impl ContainerListView {
     }
 
     fn container_name(container: &Container) -> Option<&str> {
-        container.Names.first().map(|name| {
+        container.names.first().map(|name| {
             if name.starts_with('/') {
                 &name[1..]
             } else {
@@ -181,21 +181,21 @@ impl View for ContainerListView {
             }
             Key::Char('\n') => {
                 let container = self.get_selected_container().unwrap();
-                let id = ContainerId(container.Id.clone());
+                let id = ContainerId(container.id.clone());
                 Some(AppCommand::SwitchToView(ViewType::ContainerDetails(id)))
             }
             Key::Char('l') => {
                 let container = self.get_selected_container().unwrap();
-                let id = ContainerId(container.Id.clone());
+                let id = ContainerId(container.id.clone());
                 Some(AppCommand::SwitchToView(ViewType::ContainerLogs(id)))
             }
             Key::Char('p') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
-                let container = containers.get(&selected_container.Id);
-                info!("Pausing container {}", selected_container.Id);
+                let container = containers.get(&selected_container.id);
+                info!("Pausing container {}", selected_container.id);
                 match container.pause() {
-                    Ok(_) => Some(AppCommand::NoOp),
+                    Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to pause container: {}", err);
                         Some(AppCommand::ErrorMsg(format!(
@@ -208,10 +208,10 @@ impl View for ContainerListView {
             Key::Char('P') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
-                let container = containers.get(&selected_container.Id);
-                info!("Un-pausing container {}", selected_container.Id);
+                let container = containers.get(&selected_container.id);
+                info!("Un-pausing container {}", selected_container.id);
                 match container.unpause() {
-                    Ok(_) => Some(AppCommand::NoOp),
+                    Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to un-pause container: {}", err);
                         Some(AppCommand::ErrorMsg(format!(
@@ -224,11 +224,11 @@ impl View for ContainerListView {
             Key::Char('s') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
-                let container = containers.get(&selected_container.Id);
+                let container = containers.get(&selected_container.id);
                 // TODO use a timeout?
-                info!("Stopping container {}", selected_container.Id);
+                info!("Stopping container {}", selected_container.id);
                 match container.stop(None) {
-                    Ok(_) => Some(AppCommand::NoOp),
+                    Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to stop container: {}", err);
                         Some(AppCommand::ErrorMsg(format!(
@@ -241,10 +241,10 @@ impl View for ContainerListView {
             Key::Char('S') => {
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
-                let container = containers.get(&selected_container.Id);
-                info!("Starting container {}", selected_container.Id);
+                let container = containers.get(&selected_container.id);
+                info!("Starting container {}", selected_container.id);
                 match container.start() {
-                    Ok(_) => Some(AppCommand::NoOp),
+                    Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to start container: {}", err);
                         Some(AppCommand::ErrorMsg(format!(
@@ -258,10 +258,10 @@ impl View for ContainerListView {
                 // delete
                 let selected_container = self.get_selected_container().unwrap();
                 let containers = docker.containers();
-                let container = containers.get(&selected_container.Id);
-                info!("Deleting container {}", selected_container.Id);
+                let container = containers.get(&selected_container.id);
+                info!("Deleting container {}", selected_container.id);
                 match container.delete() {
-                    Ok(_) => Some(AppCommand::NoOp),
+                    Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to delete container: {}", err);
                         Some(AppCommand::ErrorMsg(format!("{}", err)))
@@ -304,14 +304,14 @@ impl View for ContainerListView {
 
 fn display_port(port: &Port) -> String {
     let mut s = String::new();
-    if let Some(ref ip) = port.IP {
+    if let Some(ref ip) = port.ip {
         s.push_str(&format!("{}:", ip));
     }
-    s.push_str(&format!("{}", port.PrivatePort));
-    if let Some(ref public_port) = port.PublicPort {
+    s.push_str(&format!("{}", port.private_port));
+    if let Some(ref public_port) = port.public_port {
         s.push_str(&format!(" → {}", public_port));
     }
-    s.push_str(&format!("/{}", port.Type));
+    s.push_str(&format!("/{}", port.typ));
 
     s
 }

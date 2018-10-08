@@ -104,30 +104,30 @@ impl View for ImagesListView {
             .iter()
             .enumerate()
             .map(|(i, c)| {
-                let creation_timestamp = SystemTime::UNIX_EPOCH + Duration::from_secs(c.Created);
+                let creation_timestamp = SystemTime::UNIX_EPOCH + Duration::from_secs(c.created);
                 let duration = creation_timestamp.elapsed().unwrap();
                 let mut duration_str = human_duration(&duration);
                 duration_str.push_str(" ago");
-                let id = if c.Id.starts_with("sha256:") {
-                    (&c.Id[7..17]).to_string()
+                let id = if c.id.starts_with("sha256:") {
+                    (&c.id[7..17]).to_string()
                 } else {
-                    c.Id.clone()
+                    c.id.clone()
                 };
-                let parent = if c.ParentId.starts_with("sha256:") {
-                    (&c.ParentId[7..17]).to_string()
+                let parent = if c.parent_id.starts_with("sha256:") {
+                    (&c.parent_id[7..17]).to_string()
                 } else {
-                    c.ParentId.clone()
+                    c.parent_id.clone()
                 };
                 let data: Vec<String> = vec![
                     id,
                     parent,
-                    c.RepoTags
+                    c.repo_tags
                         .as_ref()
                         .and_then(|tags| tags.first())
                         .cloned()
                         .unwrap_or_else(|| "<none>".to_string()),
                     duration_str,
-                    bytesize::to_string(c.VirtualSize, false),
+                    bytesize::to_string(c.virtual_size, false),
                 ];
                 if i == self.selected {
                     Row::StyledData(data.into_iter(), selected_style)

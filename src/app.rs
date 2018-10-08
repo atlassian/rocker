@@ -205,13 +205,13 @@ impl App {
         let green = Style::default().fg(Color::LightGreen);
         let text = vec![
             Text::raw(format!("Rocker v{}     ", crate_version!())),
-            Text::styled(format!("{}", self.info.Containers), green),
+            Text::styled(format!("{}", self.info.containers), green),
             Text::raw(" containers, "),
-            Text::styled(format!("{}", self.info.Images), green),
+            Text::styled(format!("{}", self.info.images), green),
             Text::raw(" images, "),
             Text::raw(format!(
                 "docker v{} ({})",
-                self.docker_version.Version, self.docker_version.ApiVersion
+                self.docker_version.version, self.docker_version.api_version
             )),
         ];
 
