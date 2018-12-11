@@ -14,11 +14,11 @@ name = "rkr"
 [dependencies]
 byteorder = "1"
 bytesize = "1"
-crossbeam-channel="0.2"
+crossbeam-channel="0.3"
 failure = "0.1"
 log = "0.4"
-shiplift = { git = "https://github.com/softprops/shiplift", branch = "master" }
+shiplift = "0.3"
 termion = "1.5"
-tui = "0.3.0-beta.3"
+tui = "0.3.0"
 # tui = { path="/home/abusch/code/rust/tui-rs" }
 tui-logger = { git = "https://github.com/abusch/tui-logger", branch = "tui3" }
