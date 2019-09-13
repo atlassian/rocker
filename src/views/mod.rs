@@ -2,17 +2,17 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use shiplift::Docker;
 use termion::event::Key;
 use tui::{layout::Rect, Frame};
 
 use app::{AppCommand, ContainerId};
+use docker::DockerExecutor;
 use Backend;
 
 mod app_logs;
 mod container_details;
 mod container_list;
-mod container_logs;
+// mod container_logs;
 mod docker_info;
 mod help;
 mod images_list;
@@ -20,7 +20,7 @@ mod images_list;
 pub use self::app_logs::*;
 pub use self::container_details::*;
 pub use self::container_list::*;
-pub use self::container_logs::*;
+// pub use self::container_logs::*;
 pub use self::docker_info::*;
 pub use self::help::*;
 pub use self::images_list::*;
@@ -32,11 +32,11 @@ pub trait View {
     ///
     /// If the view can handle this key, it should return an `AppCommand` (which can potentially be
     /// NoOp). Otherwise, it should return `None`.
-    fn handle_input(&mut self, key: Key, docker: Arc<Docker>) -> Option<AppCommand>;
+    fn handle_input(&mut self, key: Key, docker: Arc<DockerExecutor>) -> Option<AppCommand>;
 
     /// Refresh the data displayed by this view (potentially using the provided handle to the
     /// Docker API). The default implementation doesn't do anything.
-    fn refresh(&mut self, _docker: Arc<Docker>) {}
+    fn refresh(&mut self, _docker: Arc<DockerExecutor>) {}
 
     /// Draws the view in the given area.
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect);

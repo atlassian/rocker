@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use shiplift::{Docker, LogsOptions};
 use termion::event::Key;
 use tui::{
     layout::Rect,
@@ -10,6 +9,7 @@ use tui::{
 };
 
 use app::{AppCommand, ContainerId};
+use docker::DockerExecutor;
 use tty::{InterlacedTty, TtyLine};
 use views::View;
 use Backend;
@@ -31,7 +31,7 @@ impl ContainerLogsView {
 }
 
 impl View for ContainerLogsView {
-    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         match key {
             Key::Up | Key::Char('k') => {
                 if self.scroll > 0 {
@@ -47,18 +47,16 @@ impl View for ContainerLogsView {
         }
     }
 
-    fn refresh(&mut self, docker: Arc<Docker>) {
-        let containers = docker.containers();
-        let container = containers.get(&self.id.0);
-        let logs_reader = container
-            .logs(
-                &LogsOptions::builder()
-                    .follow(false)
-                    .tail("100")
-                    .stdout(true)
-                    .stderr(true)
-                    .build(),
-            ).unwrap();
+    fn refresh(&mut self, docker: Arc<DockerExecutor>) {
+        let logs_reader = docker.container_logs(
+            &self.id.0,
+            &LogsOptions::builder()
+                .follow(false)
+                .tail("100")
+                .stdout(true)
+                .stderr(true)
+                .build(),
+        );
         let tty = InterlacedTty::new(logs_reader);
         self.logs = Some(tty);
     }
@@ -79,7 +77,8 @@ impl View for ContainerLogsView {
                     .iter()
                     .map(|l| Text::styled(format!("{}", l), style(l)))
                     .collect()
-            }).unwrap_or_else(|| vec![]);
+            })
+            .unwrap_or_else(|| vec![]);
 
         List::new(formatted_lines.into_iter())
             .block(Block::default().borders(Borders::ALL))

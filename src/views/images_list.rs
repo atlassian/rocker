@@ -3,7 +3,7 @@ use std::time::{Duration, SystemTime};
 
 use bytesize;
 
-use shiplift::{rep::Image, Docker, ImageListOptions};
+use shiplift::{rep::Image, ImageListOptions};
 use termion::event::Key;
 use tui::{
     layout::Rect,
@@ -13,6 +13,7 @@ use tui::{
 };
 
 use app::AppCommand;
+use docker::DockerExecutor;
 use views::{human_duration, View};
 use Backend;
 
@@ -31,7 +32,7 @@ impl ImagesListView {
 }
 
 impl View for ImagesListView {
-    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         let max_index = self.images.len() - 1;
         match key {
             Key::Down | Key::Char('j') => {
@@ -78,9 +79,9 @@ impl View for ImagesListView {
         }
     }
 
-    fn refresh(&mut self, docker: Arc<Docker>) {
+    fn refresh(&mut self, docker: Arc<DockerExecutor>) {
         let options = ImageListOptions::builder().all(true).build();
-        let images = docker.images().list(&options).unwrap();
+        let images = docker.images(&options).unwrap();
         self.images = images;
         if self.images.is_empty() {
             self.selected = 0;
@@ -134,7 +135,8 @@ impl View for ImagesListView {
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
                 }
-            }).skip(offset)
+            })
+            .skip(offset)
             .collect();
 
         Table::new(header.into_iter(), rows.into_iter())

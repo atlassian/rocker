@@ -3,7 +3,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use log::LevelFilter;
-use shiplift::Docker;
 use termion::event::{Event, Key};
 use tui::{
     layout::Rect,
@@ -14,6 +13,7 @@ use tui::{
 use tui_logger::{Dispatcher, EventListener, TuiLoggerSmartWidget, TuiWidgetState};
 
 use app::AppCommand;
+use docker::DockerExecutor;
 use views::View;
 use Backend;
 
@@ -34,7 +34,7 @@ impl AppLogsView {
 }
 
 impl View for AppLogsView {
-    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         if self.dispatcher.borrow_mut().dispatch(&Event::Key(key)) {
             Some(AppCommand::NoOp)
         } else {
@@ -42,7 +42,7 @@ impl View for AppLogsView {
         }
     }
 
-    fn refresh(&mut self, _docker: Arc<Docker>) {}
+    fn refresh(&mut self, _docker: Arc<DockerExecutor>) {}
 
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         TuiLoggerSmartWidget::default()

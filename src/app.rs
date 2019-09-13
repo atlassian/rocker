@@ -7,6 +7,7 @@ use shiplift::{
     Docker,
 };
 use termion::event::Key;
+use tokio::runtime::Runtime;
 use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -14,9 +15,10 @@ use tui::{
     Frame, Terminal,
 };
 
+use docker::DockerExecutor;
 use views::{
-    AppLogsView, ContainerInfo, ContainerListView, ContainerLogsView, DockerInfo, HelpView,
-    ImagesListView, View, ViewType,
+    AppLogsView, ContainerInfo, ContainerListView, DockerInfo, HelpView, ImagesListView, View,
+    ViewType,
 };
 use Backend;
 
@@ -42,7 +44,7 @@ pub enum AppEvent {
 /// Contains the state of the application.
 pub struct App {
     /// The client used to access the Docker daemon
-    docker: Arc<Docker>,
+    docker: Arc<DockerExecutor>,
     /// The current size of the application
     pub size: Rect,
     /// Version info of the Docker daemon
@@ -58,7 +60,7 @@ impl App {
     /// Create a new instance of `App`. It will initialize the Docker client and make a couple of
     /// calls to the Docker daemon to get some system info and version info.
     pub fn new() -> Result<App, Error> {
-        let docker = Arc::new(Docker::new());
+        let docker = Arc::new(DockerExecutor::new()?);
         let info = docker.info()?;
         let docker_version = docker.version()?;
         let mut app = App {
@@ -118,7 +120,8 @@ impl App {
                 Constraint::Length(1),
                 Constraint::Length(main_view_height),
                 Constraint::Length(1),
-            ]).margin(0)
+            ])
+            .margin(0)
             .split(size);
 
         t.draw(|mut f| {
@@ -130,7 +133,8 @@ impl App {
 
             // Status message
             self.draw_status_message(&mut f, chunks[2]);
-        }).unwrap();
+        })
+        .unwrap();
     }
 
     /// Instantiate a view of the type `view_type` and pushes it onto the view stack.
@@ -138,7 +142,7 @@ impl App {
         let new_view = match view_type {
             ViewType::ContainerList => Box::new(ContainerListView::new()) as Box<dyn View>,
             ViewType::ContainerDetails(id) => Box::new(ContainerInfo::new(id)) as Box<dyn View>,
-            ViewType::ContainerLogs(id) => Box::new(ContainerLogsView::new(id)) as Box<dyn View>,
+            ViewType::ContainerLogs(id) => unimplemented!(), //Box::new(ContainerLogsView::new(id)) as Box<dyn View>,
             ViewType::DockerInfo => Box::new(DockerInfo::new()) as Box<dyn View>,
             ViewType::Help => Box::new(HelpView::new()) as Box<dyn View>,
             ViewType::ImagesList => Box::new(ImagesListView::new()) as Box<dyn View>,
@@ -222,7 +226,8 @@ impl App {
                     .bg(Color::Black)
                     .fg(Color::White)
                     .modifier(Modifier::Bold),
-            ).render(t, rect);
+            )
+            .render(t, rect);
     }
 
     fn draw_status_message(&self, t: &mut Frame<Backend>, rect: Rect) {

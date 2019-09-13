@@ -17,8 +17,8 @@ bytesize = "1"
 crossbeam-channel="0.3"
 failure = "0.1"
 log = "0.4"
-shiplift = "0.3"
+shiplift = "0.5"
 termion = "1.5"
-tui = "0.3.0"
-# tui = { path="/home/abusch/code/rust/tui-rs" }
-tui-logger = { git = "https://github.com/abusch/tui-logger", branch = "tui3" }
+tokio = "0.1"
+tui = "0.3"
+tui-logger = "0.2"

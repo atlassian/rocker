@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use shiplift::{
     rep::{Container, Port},
-    ContainerListOptions, Docker,
+    ContainerListOptions,
 };
 use termion::event::Key;
 use tui::{
@@ -14,6 +14,7 @@ use tui::{
 };
 
 use app::{AppCommand, ContainerId};
+use docker::DockerExecutor;
 use views::{human_duration, View, ViewType};
 use Backend;
 
@@ -69,7 +70,8 @@ impl ContainerListView {
                 } else {
                     Row::StyledData(data.into_iter(), normal_style)
                 }
-            }).skip(offset)
+            })
+            .skip(offset)
             .collect();
 
         Table::new(header.into_iter(), rows.into_iter())
@@ -132,7 +134,7 @@ impl ContainerListView {
 }
 
 impl View for ContainerListView {
-    fn handle_input(&mut self, key: Key, docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         let max_index = self.containers.len() - 1;
         match key {
             Key::Down | Key::Char('j') => {
@@ -191,10 +193,8 @@ impl View for ContainerListView {
             }
             Key::Char('p') => {
                 let selected_container = self.get_selected_container().unwrap();
-                let containers = docker.containers();
-                let container = containers.get(&selected_container.id);
                 info!("Pausing container {}", selected_container.id);
-                match container.pause() {
+                match docker.container_pause(&selected_container.id) {
                     Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to pause container: {}", err);
@@ -207,10 +207,8 @@ impl View for ContainerListView {
             }
             Key::Char('P') => {
                 let selected_container = self.get_selected_container().unwrap();
-                let containers = docker.containers();
-                let container = containers.get(&selected_container.id);
                 info!("Un-pausing container {}", selected_container.id);
-                match container.unpause() {
+                match docker.container_unpause(&selected_container.id) {
                     Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to un-pause container: {}", err);
@@ -223,11 +221,9 @@ impl View for ContainerListView {
             }
             Key::Char('s') => {
                 let selected_container = self.get_selected_container().unwrap();
-                let containers = docker.containers();
-                let container = containers.get(&selected_container.id);
                 // TODO use a timeout?
                 info!("Stopping container {}", selected_container.id);
-                match container.stop(None) {
+                match docker.container_stop(&selected_container.id) {
                     Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to stop container: {}", err);
@@ -240,10 +236,8 @@ impl View for ContainerListView {
             }
             Key::Char('S') => {
                 let selected_container = self.get_selected_container().unwrap();
-                let containers = docker.containers();
-                let container = containers.get(&selected_container.id);
                 info!("Starting container {}", selected_container.id);
-                match container.start() {
+                match docker.container_start(&selected_container.id) {
                     Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to start container: {}", err);
@@ -257,10 +251,8 @@ impl View for ContainerListView {
             Key::Char('d') => {
                 // delete
                 let selected_container = self.get_selected_container().unwrap();
-                let containers = docker.containers();
-                let container = containers.get(&selected_container.id);
                 info!("Deleting container {}", selected_container.id);
-                match container.delete() {
+                match docker.container_delete(&selected_container.id) {
                     Ok(_) => Some(AppCommand::Refresh),
                     Err(err) => {
                         error!("Failed to delete container: {}", err);
@@ -272,13 +264,13 @@ impl View for ContainerListView {
         }
     }
 
-    fn refresh(&mut self, docker: Arc<Docker>) {
+    fn refresh(&mut self, docker: Arc<DockerExecutor>) {
         let options = if self.only_running {
             ContainerListOptions::builder().build()
         } else {
             ContainerListOptions::builder().all().build()
         };
-        let containers = docker.containers().list(&options).unwrap();
+        let containers = docker.containers(&options).unwrap();
         self.containers = containers;
         if self.containers.is_empty() {
             self.selected = 0;

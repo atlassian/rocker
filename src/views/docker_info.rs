@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use shiplift::{rep::Info, Docker};
+use shiplift::rep::Info;
 use termion::event::Key;
 use tui::{
     layout::Rect,
@@ -9,6 +9,7 @@ use tui::{
 };
 
 use app::AppCommand;
+use docker::DockerExecutor;
 use views::View;
 use Backend;
 
@@ -23,11 +24,11 @@ impl DockerInfo {
 }
 
 impl View for DockerInfo {
-    fn handle_input(&mut self, _key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, _key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         None
     }
 
-    fn refresh(&mut self, docker: Arc<Docker>) {
+    fn refresh(&mut self, docker: Arc<DockerExecutor>) {
         self.info = docker.info().ok();
     }
 

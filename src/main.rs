@@ -6,10 +6,12 @@ extern crate failure;
 extern crate log;
 extern crate shiplift;
 extern crate termion;
+extern crate tokio;
 extern crate tui;
 extern crate tui_logger;
 
 mod app;
+mod docker;
 mod tty;
 mod views;
 

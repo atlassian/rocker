@@ -9,6 +9,7 @@ use tui::{
 };
 
 use app::{AppCommand, ContainerId};
+use docker::DockerExecutor;
 use views::View;
 use Backend;
 
@@ -30,7 +31,7 @@ impl ContainerInfo {
 }
 
 impl View for ContainerInfo {
-    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         match key {
             Key::Up | Key::Char('k') => {
                 if self.scroll > 0 {
@@ -46,8 +47,9 @@ impl View for ContainerInfo {
         }
     }
 
-    fn refresh(&mut self, docker: Arc<Docker>) {
-        self.details = docker.containers().get(&self.name).inspect().ok();
+    fn refresh(&mut self, docker: Arc<DockerExecutor>) {
+        // self.details = docker.containers().get(&self.name).inspect().ok();
+        self.details = docker.container(&self.name).ok();
     }
 
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {

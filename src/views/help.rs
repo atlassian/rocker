@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use shiplift::Docker;
 use termion::event::Key;
 use tui::{
     layout::Rect,
@@ -9,6 +8,7 @@ use tui::{
 };
 
 use app::AppCommand;
+use docker::DockerExecutor;
 use views::View;
 use Backend;
 
@@ -23,7 +23,7 @@ impl HelpView {
 }
 
 impl View for HelpView {
-    fn handle_input(&mut self, key: Key, _docker: Arc<Docker>) -> Option<AppCommand> {
+    fn handle_input(&mut self, key: Key, _docker: Arc<DockerExecutor>) -> Option<AppCommand> {
         match key {
             Key::Up | Key::Char('k') => {
                 if self.scroll > 0 {
@@ -39,7 +39,7 @@ impl View for HelpView {
         }
     }
 
-    fn refresh(&mut self, _docker: Arc<Docker>) {}
+    fn refresh(&mut self, _docker: Arc<DockerExecutor>) {}
 
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
         let text = vec![
