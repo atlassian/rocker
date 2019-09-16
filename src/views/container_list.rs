@@ -41,7 +41,7 @@ impl ContainerListView {
     }
 
     fn draw_container_list(&self, t: &mut Frame<Backend>, rect: Rect) {
-        let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
+        let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::BOLD);
         let normal_style = Style::default().fg(Color::White);
         let running_style = Style::default().fg(Color::Green);
         let header = ["Container ID", "Name", "Image", "Command", "Status"];

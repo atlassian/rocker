@@ -221,7 +221,7 @@ impl App {
                 Style::default()
                     .bg(Color::Black)
                     .fg(Color::White)
-                    .modifier(Modifier::Bold),
+                    .modifier(Modifier::BOLD),
             )
             .render(t, rect);
     }
@@ -233,7 +233,7 @@ impl App {
                 Style::default()
                     .bg(Color::Red)
                     .fg(Color::White)
-                    .modifier(Modifier::Bold),
+                    .modifier(Modifier::BOLD),
             )
         } else {
             Text::styled(

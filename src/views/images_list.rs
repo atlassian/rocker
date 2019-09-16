@@ -91,7 +91,7 @@ impl View for ImagesListView {
     }
 
     fn draw(&self, t: &mut Frame<Backend>, rect: Rect) {
-        let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::Bold);
+        let selected_style = Style::default().fg(Color::Yellow).modifier(Modifier::BOLD);
         let normal_style = Style::default().fg(Color::White);
         let header = ["Image ID", "Parent", "Tag", "Created", "Virtual Size"];
         let height = rect.height as usize - 4; // 2 for border + 2 for header
