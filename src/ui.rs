@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use humantime;
 
-use app::{App, AppState, ContainerId};
+use crate::app::{App, AppState, ContainerId};
 use shiplift::rep::Port;
 use tui::{
     backend::{Backend, MouseBackend},

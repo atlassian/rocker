@@ -5,9 +5,9 @@ use std::time::Duration;
 use termion::event::Key;
 use tui::{layout::Rect, Frame};
 
-use app::{AppCommand, ContainerId};
-use docker::DockerExecutor;
-use Backend;
+use crate::app::{AppCommand, ContainerId};
+use crate::docker::DockerExecutor;
+use crate::Backend;
 
 mod app_logs;
 mod container_details;

@@ -8,10 +8,10 @@ use tui::{
     Frame,
 };
 
-use app::AppCommand;
-use docker::DockerExecutor;
-use views::View;
-use Backend;
+use crate::app::AppCommand;
+use crate::docker::DockerExecutor;
+use crate::views::View;
+use crate::Backend;
 
 pub struct DockerInfo {
     info: Option<Info>,

@@ -2,12 +2,8 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 
 use failure::*;
-use shiplift::{
-    rep::{Info, Version},
-    Docker,
-};
+use shiplift::rep::{Info, Version};
 use termion::event::Key;
-use tokio::runtime::Runtime;
 use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -15,12 +11,12 @@ use tui::{
     Frame, Terminal,
 };
 
-use docker::DockerExecutor;
-use views::{
+use crate::docker::DockerExecutor;
+use crate::views::{
     AppLogsView, ContainerInfo, ContainerListView, DockerInfo, HelpView, ImagesListView, View,
     ViewType,
 };
-use Backend;
+use crate::Backend;
 
 // Stolen from clap
 macro_rules! crate_version {
@@ -52,7 +48,7 @@ pub struct App {
     /// System info of the Docker daemon
     info: Info,
     /// View stack: The top (=front) of the stack is the view that is displayed
-    view_stack: VecDeque<Box<View>>,
+    view_stack: VecDeque<Box<dyn View>>,
     err_msg: Option<String>,
 }
 

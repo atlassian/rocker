@@ -13,10 +13,10 @@ use tui::{
     Frame,
 };
 
-use app::{AppCommand, ContainerId};
-use docker::DockerExecutor;
-use views::{human_duration, View, ViewType};
-use Backend;
+use crate::app::{AppCommand, ContainerId};
+use crate::docker::DockerExecutor;
+use crate::views::{human_duration, View, ViewType};
+use crate::Backend;
 
 pub struct ContainerListView {
     /// List of containers to display
@@ -74,7 +74,7 @@ impl ContainerListView {
             .skip(offset)
             .collect();
 
-        Table::new(header.into_iter(), rows.into_iter())
+        Table::new(header.iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .widths(&[15, 20, 20, 30, 20]) // TODO be smarter with sizes here
             .render(t, rect);

@@ -5,6 +5,7 @@ authors = ["Antoine Busch <abusch@atlassian.com>"]
 description = "Text-mode UI for Docker"
 keywords = ["tui", "docker"]
 publish = false
+edition = "2018"
 
 [[bin]]
 bench = false

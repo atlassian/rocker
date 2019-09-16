@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use failure::*;
 use shiplift::{
     rep::{Container, ContainerDetails, Image, Info, Version},
-    ContainerListOptions, Docker, ImageListOptions, LogsOptions,
+    ContainerListOptions, Docker, ImageListOptions,
 };
 use tokio::prelude::Future;
 use tokio::runtime::Runtime;

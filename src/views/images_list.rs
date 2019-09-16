@@ -12,10 +12,10 @@ use tui::{
     Frame,
 };
 
-use app::AppCommand;
-use docker::DockerExecutor;
-use views::{human_duration, View};
-use Backend;
+use crate::app::AppCommand;
+use crate::docker::DockerExecutor;
+use crate::views::{human_duration, View};
+use crate::Backend;
 
 pub struct ImagesListView {
     images: Vec<Image>,
@@ -139,7 +139,7 @@ impl View for ImagesListView {
             .skip(offset)
             .collect();
 
-        Table::new(header.into_iter(), rows.into_iter())
+        Table::new(header.iter(), rows.into_iter())
             .block(Block::default().borders(Borders::ALL))
             .widths(&[10, 10, 45, 15, 20]) // TODO be smarter with sizes here
             .render(t, rect);

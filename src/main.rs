@@ -1,14 +1,5 @@
-extern crate byteorder;
-extern crate bytesize;
-extern crate crossbeam_channel;
-extern crate failure;
 #[macro_use]
 extern crate log;
-extern crate shiplift;
-extern crate termion;
-extern crate tokio;
-extern crate tui;
-extern crate tui_logger;
 
 mod app;
 mod docker;
@@ -28,7 +19,7 @@ use termion::{
 use tui::{backend::TermionBackend, Terminal};
 use tui_logger::{init_logger, set_default_level, set_level_for_target};
 
-use app::{App, AppEvent};
+use crate::app::{App, AppEvent};
 
 type Backend = TermionBackend<AlternateScreen<MouseTerminal<RawTerminal<io::Stdout>>>>;
 
@@ -64,7 +55,7 @@ fn main() {
         let stdin = io::stdin();
         for c in stdin.keys() {
             let key = c.unwrap();
-            input_tx.send(AppEvent::Input(key));
+            input_tx.send(AppEvent::Input(key)).unwrap();
         }
     });
 

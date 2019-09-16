@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use shiplift::{rep::ContainerDetails, Docker};
+use shiplift::rep::ContainerDetails;
 use termion::event::Key;
 use tui::{
     layout::Rect,
@@ -8,10 +8,10 @@ use tui::{
     Frame,
 };
 
-use app::{AppCommand, ContainerId};
-use docker::DockerExecutor;
-use views::View;
-use Backend;
+use crate::app::{AppCommand, ContainerId};
+use crate::docker::DockerExecutor;
+use crate::views::View;
+use crate::Backend;
 
 pub struct ContainerInfo {
     name: String,
