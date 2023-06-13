@@ -20,7 +20,7 @@ failure = "0.1"
 log = "0.4"
 shiplift = "0.5"
 termion = "1.5"
-tokio = "0.1"
+tokio = "1.18"
 tui = "0.6"
 # tui-logger = "0.3"
 tui-logger = { git="https://github.com/abusch/tui-logger", branch="update-tui" }
